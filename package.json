@@ -10,7 +10,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.helloWorld"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -26,8 +26,8 @@
 		"views": {
 			"secs-gem-expolorer": [
 				{
-					"id": "messages",
-					"name": "Messages"
+					"id": "secs-messages",
+					"name": "Secs Messages"
 				}
 			]
 		},
