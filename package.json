@@ -10,7 +10,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"*"
+		"*",
+		"onCommand:extension.secs.active"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -33,8 +34,8 @@
 		},
 		"commands": [
 			{
-				"command": "extension.helloWorld",
-				"title": "Hello World"
+				"command": "extension.secs.active",
+				"title": "SECS/GEM Explorer: Active"
 			}
 		]
 	},
