@@ -5,6 +5,7 @@ import {
 import * as fs from 'fs';
 import * as path from 'path';
 import { SecsMessage } from './model/secsMessage';
+import { revealLine } from './extension';
 
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
@@ -28,7 +29,7 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		var fullText = this.doc.getText();
 		return this.treeItem;
 	}
-	
+
 	private pathExists(p: string): boolean {
 		try {
 			fs.accessSync(p);
@@ -48,11 +49,11 @@ export class MessageItem extends vscode.TreeItem {
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {
-		super(`${secsMessage.header}`, collapsibleState);
+		super(`[S${secsMessage.streamFunction[0]}F${secsMessage.streamFunction[1]}] ${secsMessage.header}`, collapsibleState);
 	}
 
 	get tooltip(): string {
-		return `${this.label}`;
+		return `line: ${this.line}`;
 	}
 
 	get description(): string {

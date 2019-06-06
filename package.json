@@ -11,7 +11,8 @@
 	],
 	"activationEvents": [
 		"*",
-		"onCommand:extension.secs.active"
+		"onCommand:extension.secs.active",
+        "onView:secs-messages"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -36,8 +37,20 @@
 			{
 				"command": "extension.secs.active",
 				"title": "SECS/GEM Explorer: Active"
+			},
+			{
+				"command": "extension.gotoMessage",
+				"title": "Edit"
 			}
-		]
+		],
+        "menus": {
+            "view/item/context": [
+                {
+                    "command": "extension.gotoMessage",
+                    "when": "view == secs-messages && viewItem == TreeItem"
+                }
+            ]
+        }
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

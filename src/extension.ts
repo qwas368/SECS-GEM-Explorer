@@ -24,6 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // register
     vscode.commands.registerCommand("extension.secs.active", () => active());
+    vscode.commands.registerCommand('extension.revealLine', (p1: vscode.Position, p2: vscode.Position) =>  {
+        revealPosition(p1, p2);
+    });
 }
 
 // this method is called when your extension is deactivated
@@ -31,22 +34,28 @@ export function deactivate() {}
 
 function active() {
     if (vscode.window.activeTextEditor) {
-        let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\.)(?<lineNumber>\d*)/gs;
-        let fullText = addLineNumber(vscode.window.activeTextEditor.document.getText(), vscode.window.activeTextEditor.document.eol);
+        let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\r\n\.)/gs;
+        let fullText = vscode.window.activeTextEditor.document.getText();
         let result;
-        while(null != (result=re.exec(fullText))) {
+        while(null !== (result=re.exec(fullText))) {
             if (result.groups)
             {
-                let {header, body, command, comment, lineNumber} = result.groups;            
+                let {header, body, command, comment} = result.groups;            
                 let secsMessage = new SecsMessage(header, body, command, comment);
-                secsMessageProvider.treeItem.push(new MessageItem(secsMessage, +lineNumber, vscode.TreeItemCollapsibleState.None))
+                var position1 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex-result[0].length);
+                var position2 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex);
+                secsMessageProvider.treeItem.push(new MessageItem(secsMessage, position1.line, vscode.TreeItemCollapsibleState.None, {
+                    command: 'extension.revealLine',
+                    title: '',
+                    arguments: [position1, position2]
+                }))
             }
         }
+        secsMessageProvider.refresh();
     }
-
 }
 
-function revealLine(line: number) {
+export function revealLine(line: number) {
     let reviewType: vscode.TextEditorRevealType = vscode.TextEditorRevealType.InCenter;
     if (vscode.window.activeTextEditor) {
         if (line === vscode.window.activeTextEditor.selection.active.line) {
@@ -60,30 +69,37 @@ function revealLine(line: number) {
     }
 }
 
-function revealPosition(line: number, column: number) {
+export function revealPosition(position1: vscode.Position, position2: vscode.Position) {
 
-    if (isNaN(column)) {
-        revealLine(line);
-    } else if(!vscode.window.activeTextEditor) { 
+    if(!vscode.window.activeTextEditor) { 
         vscode.window.showWarningMessage("Reveal fail. Can't find any active text.");
     } else {
         let reviewType: vscode.TextEditorRevealType = vscode.TextEditorRevealType.InCenter;
-        if (line === vscode.window.activeTextEditor.selection.active.line) {
+        if (position1.line === vscode.window.activeTextEditor.selection.active.line) {
             reviewType = vscode.TextEditorRevealType.InCenterIfOutsideViewport;
         }
-        const newSe = new vscode.Selection(line, column, line, column);
+        const newSe = new vscode.Selection(position1, position2);
         vscode.window.activeTextEditor.selection = newSe;
         vscode.window.activeTextEditor.revealRange(newSe, reviewType);
     }
 }
 
-// 在.後面加上line number
-function addLineNumber(textDocument: string, eol: vscode.EndOfLine) : string {
-    let splitPattern = eol == vscode.EndOfLine.CRLF ? "\r\n" : "\n";
-    return textDocument.split(splitPattern).map((x, index) => {
-        if(x === ".")
-            return `${x}${index}`;
-        else
-            return x;
-    }).join(splitPattern);
+function parseSecsMessage(textDocument : vscode.TextDocument) : SecsMessage[] {
+    if (vscode.window.activeTextEditor) {
+        let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\r\n\.)/gs;
+        let fullText = textDocument.getText();
+        let result;
+        let secsMessages : SecsMessage[] = [];
+        while(null !== (result=re.exec(fullText))) {
+            if (result.groups)
+            {
+                let {header, body, command, comment} = result.groups;            
+                var position1 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex-result[0].length);
+                var position2 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex);
+                secsMessages.push(new SecsMessage(header, body, command, comment, position1, position2));
+            }
+        }
+    } else {
+
+    }
 }
