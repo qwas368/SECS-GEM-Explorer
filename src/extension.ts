@@ -1,8 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { DepNodeProvider, Dependency } from './DepNodeProvider';
-import { SecsMessageProvider, MessageItem } from './secsMessageProvider';
+import { SecsMessageProvider, MessageItem, FileItem } from './secsMessageProvider';
 import { SecsMessage } from './model/secsMessage';
 
 var secsMessageProvider: SecsMessageProvider;
@@ -10,22 +9,18 @@ var secsMessageProvider: SecsMessageProvider;
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-    let rootPath = vscode.workspace.rootPath;
-    if (rootPath) {
-        const nodeDependenciesProvider = new DepNodeProvider(rootPath);
-	    vscode.window.registerTreeDataProvider('secs-messages', nodeDependenciesProvider);
-    } else {
-        let activeTextEditor = vscode.window.activeTextEditor;
-        if (activeTextEditor) {
-            secsMessageProvider = new SecsMessageProvider(activeTextEditor.document);
-            vscode.window.registerTreeDataProvider('secs-messages', secsMessageProvider);
-        }
-    }
+    secsMessageProvider = new SecsMessageProvider();
+    vscode.window.registerTreeDataProvider('secs-messages', secsMessageProvider);
 
     // register
     vscode.commands.registerCommand("extension.secs.active", () => active());
     vscode.commands.registerCommand('extension.revealLine', (p1: vscode.Position, p2: vscode.Position) =>  {
         revealPosition(p1, p2);
+    });
+    vscode.commands.registerCommand('extension.secs.setting', () =>  {
+        vscode.window.showQuickPick(['1', '2', '3']).then(x => {
+            vscode.window.showInformationMessage(x!);
+        });
     });
 }
 
@@ -34,24 +29,12 @@ export function deactivate() {}
 
 function active() {
     if (vscode.window.activeTextEditor) {
-        let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\r\n\.)/gs;
-        let fullText = vscode.window.activeTextEditor.document.getText();
-        let result;
-        while(null !== (result=re.exec(fullText))) {
-            if (result.groups)
-            {
-                let {header, body, command, comment} = result.groups;            
-                let secsMessage = new SecsMessage(header, body, command, comment);
-                var position1 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex-result[0].length);
-                var position2 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex);
-                secsMessageProvider.treeItem.push(new MessageItem(secsMessage, position1.line, vscode.TreeItemCollapsibleState.None, {
-                    command: 'extension.revealLine',
-                    title: '',
-                    arguments: [position1, position2]
-                }))
-            }
-        }
+        let fileItem = new FileItem(vscode.window.activeTextEditor.document, 
+            vscode.TreeItemCollapsibleState.Collapsed)
+        secsMessageProvider.addTreeItem(fileItem);
         secsMessageProvider.refresh();
+    } else {
+        vscode.window.showWarningMessage("No active text.")
     }
 }
 
@@ -84,22 +67,19 @@ export function revealPosition(position1: vscode.Position, position2: vscode.Pos
     }
 }
 
-function parseSecsMessage(textDocument : vscode.TextDocument) : SecsMessage[] {
-    if (vscode.window.activeTextEditor) {
-        let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\r\n\.)/gs;
-        let fullText = textDocument.getText();
-        let result;
-        let secsMessages : SecsMessage[] = [];
-        while(null !== (result=re.exec(fullText))) {
-            if (result.groups)
-            {
-                let {header, body, command, comment} = result.groups;            
-                var position1 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex-result[0].length);
-                var position2 = vscode.window.activeTextEditor.document.positionAt(re.lastIndex);
-                secsMessages.push(new SecsMessage(header, body, command, comment, position1, position2));
-            }
+export function parseSecsMessage(textDocument : vscode.TextDocument) : [SecsMessage, vscode.Position, vscode.Position][] {
+    let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\.([^\w]|$))/gs;
+    let fullText = textDocument.getText();
+    let result;
+    let secsMessages : [SecsMessage, vscode.Position, vscode.Position][]  = [];
+    while(null !== (result=re.exec(fullText))) {
+        if (result.groups)
+        {
+            let {header, body, command, comment} = result.groups;
+            var position1 = textDocument.positionAt(re.lastIndex-result[0].length);
+            var position2 = textDocument.positionAt(re.lastIndex);
+            secsMessages.push([new SecsMessage(header, body, command, comment), position1, position2]);
         }
-    } else {
-
     }
+    return secsMessages;
 }

@@ -12,6 +12,7 @@
 	"activationEvents": [
 		"*",
 		"onCommand:extension.secs.active",
+		"onCommand:extension.secs.setting",
         "onView:secs-messages"
 	],
 	"main": "./out/extension.js",
@@ -37,6 +38,10 @@
 			{
 				"command": "extension.secs.active",
 				"title": "SECS/GEM Explorer: Active"
+			},
+			{
+				"command": "extension.secs.setting",
+				"title": "SECS/GEM Explorer: Setting"
 			},
 			{
 				"command": "extension.gotoMessage",

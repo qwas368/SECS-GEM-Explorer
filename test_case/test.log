@@ -1,0 +1,67 @@
+
+2019-06-02 00:06:26,576 INFO  [905] - SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[CE 0E 00 00] */
+  <L [3]
+    <U4 [1] 1449 > /* DATAID */
+    <U4 [1] 90003 > /* Name=CEID Keyword=CollectionEventID */
+    <L [0]
+    >
+  >
+.
+
+
+
+2019-06-02 00:02:47,959 INFO  [926] - SECS. S1F1: 'S1F1' W /* Name= SMSD=SMSD Header=[AE 0E 00 00] */
+.
+
+
+
+
+
+
+2019-06-02 00:02:47,959 INFO  [929] - SECS. OLD_H: 'S1F2' /* Name=OLD_H SMSD=SMSD Header=[AE 0E 00 00] */
+  <L [0] 
+  >
+.
+
+
+2019-06-02 16:24:32,588 INFO  [847] - SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[AC 06 00 00] */
+  <L [3]
+    <U4 [1] 693 > /* DATAID */
+    <U4 [1] 90000 > /* Name=CEID Keyword=MtrlPerformData_ChamberIn */
+    <L [4]
+      <L [2]
+        <U4 [1] 217 > /* Name=RPTID Keyword=ReportID */
+        <L [1]
+          <A [32] 'B664097902F7443E9F1D9878EAACDDF0' > /* Name=VID Keyword=ControlJobID */
+        >
+      >
+      <L [2]
+        <U4 [1] 203 > /* Name=RPTID Keyword=ReportID */
+        <L [1]
+          <A [13] 'PG6838CC20052' > /* Name=VID Keyword=ProcessJobID */
+        >
+      >
+      <L [2]
+        <U4 [1] 11 > /* Name=RPTID Keyword=ReportID */
+        <L [2]
+          <A [8] 'WF105743' > /* Name=VID Keyword=CarrierID */
+          <A [6] 'CA94FB' > /* Name=VID Keyword=RecipeID */
+        >
+      >
+      <L [2]
+        <U4 [1] 300 > /* Name=RPTID Keyword=ReportID */
+        <L [3]
+          <A [16] 'PG6843D280002-14' > /* Name=VID Keyword=SubstID */
+          <A [13] 'PG6843D280002' > /* Name=VID Keyword=SubstLotID */
+          <L [1] 
+            <L [3] 
+              <A [11] 'WF105743.14' >
+              <A [16] '2019060216243281' >
+              <A [0] '' >
+            >
+          > /* Name=VID Keyword=SubstHistory */
+        >
+      >
+    >
+  >
+.

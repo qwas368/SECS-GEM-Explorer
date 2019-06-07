@@ -5,11 +5,10 @@ export class SecsMessage {
 	constructor(
 		public readonly header: string,
         public readonly body: string,
-        private readonly command: string,
-        public readonly comment: string,
-        public readonly position1: vscode.Position,
-        public readonly position2: vscode.Position
+        public readonly command: string,
+        public readonly comment: string
 	) {
+        this.command = this.command.replace(/\'/g, '');
         this.streamFunction = this.toStreamFunction(command);
     }
 
@@ -22,6 +21,23 @@ export class SecsMessage {
             }
         }
         return [0, 0];
+    }
+
+    private _ceidKeyword? : string = undefined;
+    get ceidKeyword() : string {
+        if (!this._ceidKeyword)
+        {
+            let reg = /\/\*\s*Name=(?<name>CEID)\s*Keyword=(?<keyword>\w*)\s*\*\//gi;
+            let result = reg.exec(this.body);
+            if (result) {
+                if (result.groups) {
+                    this._ceidKeyword = result.groups.keyword;
+                }
+            } else {
+                this._ceidKeyword = '';
+            }
+        }
+        return this._ceidKeyword!;
     }
 }
 
