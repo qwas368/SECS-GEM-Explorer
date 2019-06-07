@@ -29,21 +29,9 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 	}
 
 	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<vscode.TreeItem[]> {
-		if (element && element.collapsibleState !== vscode.TreeItemCollapsibleState.None) {
-			if (element instanceof  FileItem) {
-				return element.subTreeItems.filter(e => {
-					if (this.hideUnknownS6F11 && e.secsMessage.command === "S6F11" && e.secsMessage.ceidKeyword === "CollectionEventID")
-						return false;
-					else if (this.hideS6F12 && e.secsMessage.command === "S6F12")
-						return false;
-					else if (this.hideS1F1andS1F2 && (e.secsMessage.command === "S1F1" || e.secsMessage.command === "S1F2"))
-						return false;
-					else
-						return true;
-				});
-			}
-		}
-		return this.treeItem;
+		return element instanceof FileItem ? element.subTreeItems
+			:  element instanceof GroupMessageItem ? this.messageItemFilter(element.subTreeItems)
+			:  this.treeItem;
 	}
 
 	public addTreeItem(treeItem: vscode.TreeItem) {
@@ -63,6 +51,19 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		}
 
 		return true;
+	}
+
+	private messageItemFilter(messageItems: MessageItem[]) : MessageItem[] {
+		return messageItems.filter(e => {
+			if (this.hideUnknownS6F11 && e.secsMessage.command === "S6F11" && e.secsMessage.ceidKeyword === "CollectionEventID")
+				return false;
+			else if (this.hideS6F12 && e.secsMessage.command === "S6F12")
+				return false;
+			else if (this.hideS1F1andS1F2 && (e.secsMessage.command === "S1F1" || e.secsMessage.command === "S1F2"))
+				return false;
+			else
+				return true;
+		});
 	}
 }
 
@@ -89,6 +90,7 @@ export class MessageItem extends vscode.TreeItem {
 	}
 
 	labelDisplay(secsMessage : SecsMessage) : string {
+		this.label
 		if (secsMessage.streamFunction === [6, 11]) {
 			return secsMessage.ceidKeyword;
 		} else {
@@ -111,6 +113,25 @@ export class MessageItem extends vscode.TreeItem {
 	}
 }
 
+export class GroupMessageItem extends vscode.TreeItem {
+	constructor(
+		public readonly messageItems: MessageItem[],
+		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+		public readonly command?: vscode.Command
+	) {
+		super('WaferId', collapsibleState);
+	}
+
+	get subTreeItems(): MessageItem[] {
+		return this.messageItems;
+	}
+
+	iconPath = {
+		light: path.join(__filename, '..', '..', 'resources', 'light', 'paket.png'),
+		dark: path.join(__filename, '..', '..', 'resources', 'dark', 'paket.png')
+	};
+}
+
 export class FileItem extends vscode.TreeItem {
 	
 	constructor(
@@ -127,17 +148,33 @@ export class FileItem extends vscode.TreeItem {
 		return `${this.textDocument.fileName}`;
 	}
 
-	private _subTreeItems?: MessageItem[] = undefined;
-	get subTreeItems(): MessageItem[] {
+	private _subTreeItems?: GroupMessageItem[] = undefined;
+	get subTreeItems(): GroupMessageItem[] {
 		if (!this._subTreeItems) {
-			this._subTreeItems = parseSecsMessage(this.textDocument).map(element => {
-				let [secsMessage, position1, position2] = element;
-				return new MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None, {
-					command: 'extension.revealLine',
-					title: 'Go To SECS Message.',
-					arguments: [position1, position2]
-				});
-			});
+			var [group, groups] = parseSecsMessage(this.textDocument)
+				.reduce((acc : [MessageItem[], MessageItem[][]], element) => {
+					let [group, groups] = acc;
+					let [secsMessage, position1, position2] = element;
+					let messageItem = new MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None, {
+						command: 'extension.revealLine',
+						title: 'Go To SECS Message.',
+						arguments: [position1, position2]
+					});
+
+					if (messageItem.secsMessage.ceidKeyword === "CarrierIDRead" && group.length === 0) {
+						group.push(messageItem);
+					} else if (messageItem.secsMessage.ceidKeyword === "CarrierIDRead") {
+						groups.push(group);
+						group = [];
+						group.push(messageItem);
+					} else {
+						group.push(messageItem);
+					}
+					return [group, groups];
+				}, [[], []]);
+				
+
+				this._subTreeItems = [...groups, group].map(group => new GroupMessageItem(group, vscode.TreeItemCollapsibleState.Collapsed));
 		}
 		return this._subTreeItems;
 	}
