@@ -39,5 +39,22 @@ export class SecsMessage {
         }
         return this._ceidKeyword!;
     }
+
+    private _alertKeyword? : string = undefined;
+    get alertKeyword() : string {
+        if (!this._alertKeyword)
+        {
+            let reg = /'(?<keyword>.*?)'/gi;
+            let result = reg.exec(this.body);
+            if (result) {
+                if (result.groups) {
+                    this._alertKeyword = result.groups.keyword;
+                }
+            } else {
+                this._alertKeyword = '';
+            }
+        }
+        return this._alertKeyword!;
+    }
 }
 

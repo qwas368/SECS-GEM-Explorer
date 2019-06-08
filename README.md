@@ -3,6 +3,7 @@
 
 * alarm 的 describtion 顯示 alarm id
 * Proceed 的 icon
+* active a folder
 
 
 ## Extension Settings

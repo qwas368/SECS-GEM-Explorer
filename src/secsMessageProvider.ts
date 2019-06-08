@@ -76,17 +76,19 @@ export class MessageItem extends vscode.TreeItem {
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {
-		super(`[S${secsMessage.streamFunction[0]}F${secsMessage.streamFunction[1]}] ${secsMessage.command === "S6F11" ?  secsMessage.ceidKeyword : secsMessage.header}`, collapsibleState);
+		super('', collapsibleState);
 
-		this.setIcon();
+		this.initlabel();
+		this.initIcon();
 	}
 
 	get tooltip(): string {
 		return `line: ${this.p1.line}`;
 	}
 
+	// 從message body取的第一個string，假如沒有string，就取
 	get description(): string {
-		return 'this is a description';
+		return '';
 	}
 
 	labelDisplay(secsMessage : SecsMessage) : string {
@@ -98,18 +100,27 @@ export class MessageItem extends vscode.TreeItem {
 		}
 	}
 
-	setIcon() {
-		if (this.secsMessage.command === "S5F1") {
-			this.iconPath = {
-				light: path.join(__filename, '..', '..', 'resources', 'light', 'attention.svg'),
-				dark: path.join(__filename, '..', '..', 'resources', 'dark', 'attention.svg')
-			};
-		} else {
-			this.iconPath = {
-				light: path.join(__filename, '..', '..', 'resources', 'light', 'string.svg'),
-				dark: path.join(__filename, '..', '..', 'resources', 'dark', 'string.svg')
+	initIcon() {
+		let iconPath = (iconFile : string) => {
+			return {
+				light: path.join(__filename, '..', '..', 'resources', 'light', iconFile),
+				dark: path.join(__filename, '..', '..', 'resources', 'dark', iconFile)
 			};
 		}
+
+		this.iconPath = this.secsMessage.command === 'S5F1' ? iconPath('attention.svg')
+					  : this.secsMessage.command === 'S3F17' ? iconPath('proceed.svg')
+					  : this.secsMessage.command === 'S6F11' ? iconPath('flash.svg')
+					  : this.secsMessage.streamFunction[1]%2 === 0 ? iconPath('reply.svg')
+					  : iconPath('c.png');
+	}
+
+	initlabel() {
+		// [S6F11] (ceidKeyword| alertKeyword | header)
+		this.label = `[S${this.secsMessage.streamFunction[0]}F${this.secsMessage.streamFunction[1]}] `;
+		this.label += this.secsMessage.command === "S6F11" ? this.secsMessage.ceidKeyword 
+					: this.secsMessage.command === "S5F1" ? this.secsMessage.alertKeyword 
+					: this.secsMessage.header;
 	}
 }
 
