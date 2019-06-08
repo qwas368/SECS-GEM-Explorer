@@ -106,8 +106,8 @@ export class MessageItem extends vscode.TreeItem {
 			};
 		} else {
 			this.iconPath = {
-				light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
-				dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+				light: path.join(__filename, '..', '..', 'resources', 'light', 'string.svg'),
+				dark: path.join(__filename, '..', '..', 'resources', 'dark', 'string.svg')
 			};
 		}
 	}
@@ -119,7 +119,8 @@ export class GroupMessageItem extends vscode.TreeItem {
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {
-		super('WaferId', collapsibleState);
+		super('unknown', collapsibleState);
+		this.label = this.getCarrierId();
 	}
 
 	get subTreeItems(): MessageItem[] {
@@ -130,6 +131,18 @@ export class GroupMessageItem extends vscode.TreeItem {
 		light: path.join(__filename, '..', '..', 'resources', 'light', 'paket.png'),
 		dark: path.join(__filename, '..', '..', 'resources', 'dark', 'paket.png')
 	};
+
+	// 從messageItems中的第一個取得carrierId，取不到時回傳unknown carrierId
+	getCarrierId() : string {
+		let [firstItem, ..._] = this.messageItems;
+		if (firstItem) {
+			let reg = /'(?<carrierId>\w{8})'/gi;
+			let result = reg.exec(firstItem.secsMessage.body);
+			if (result && result.groups)
+				return result.groups.carrierId;
+		}
+		return 'unknown';
+	}
 }
 
 export class FileItem extends vscode.TreeItem {

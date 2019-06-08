@@ -68,7 +68,7 @@ export function revealPosition(position1: vscode.Position, position2: vscode.Pos
 }
 
 export function parseSecsMessage(textDocument : vscode.TextDocument) : [SecsMessage, vscode.Position, vscode.Position][] {
-    let re = /(?<header> \S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\.([^\w]|$))/gs;
+    let re = /(?<header>\S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\.([^\w]|$))/gs;
     let fullText = textDocument.getText();
     let result;
     let secsMessages : [SecsMessage, vscode.Position, vscode.Position][]  = [];
