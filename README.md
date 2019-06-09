@@ -5,6 +5,9 @@
 * enable all event
 * delete file
 
+## publish
+
+`vsce package`
 
 ## Extension Settings
 

@@ -3,6 +3,7 @@
   "displayName": "SECS Message Parser",
   "description": "analysis secs command",
   "version": "0.0.1",
+  "publisher": "ychu0",
   "engines": {
     "vscode": "^1.34.0"
   },
