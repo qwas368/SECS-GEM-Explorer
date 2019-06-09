@@ -3,19 +3,22 @@
 import * as vscode from 'vscode';
 import { SecsMessageProvider, MessageItem, FileItem } from './secsMessageProvider';
 import { SecsMessage } from './model/secsMessage';
-import * as R from 'ramda';
+import { TextDecoder } from 'util';
 
 var secsMessageProvider: SecsMessageProvider;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+    // init
     secsMessageProvider = new SecsMessageProvider();
-    vscode.window.registerTreeDataProvider('secs-messages', secsMessageProvider);
 
     // register
-    vscode.commands.registerCommand("extension.secs.active", () => active());
-    vscode.commands.registerCommand('extension.revealLine', (p1: vscode.Position, p2: vscode.Position) =>  {
+    vscode.window.registerTreeDataProvider('secs-messages', secsMessageProvider);
+    vscode.commands.registerCommand("extension.secs.explore.file", () => explore());
+    vscode.commands.registerCommand("extension.secs.explore.folder", () => exploreFolder());
+    vscode.commands.registerCommand('extension.revealLine', (p1: vscode.Position, p2: vscode.Position, t1: vscode.TextDocument) =>  {
+        revealTextDocument(t1);
         revealPosition(p1, p2);
     });
     vscode.commands.registerCommand('extension.secs.setting', () =>  {
@@ -28,7 +31,7 @@ export function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
-function active() {
+function explore() {
     if (vscode.window.activeTextEditor) {
         let fileItem = new FileItem(vscode.window.activeTextEditor.document, 
             vscode.TreeItemCollapsibleState.Collapsed)
@@ -36,6 +39,25 @@ function active() {
         secsMessageProvider.refresh();
     } else {
         vscode.window.showWarningMessage("No active text.")
+    }
+}
+
+function exploreFolder() {
+    if (vscode.workspace.workspaceFolders) {
+        vscode.workspace.workspaceFolders.forEach((folder) => {
+            vscode.workspace.findFiles(new vscode.RelativePattern(folder, '*'))
+                .then((uris) => {
+                    uris.forEach((uri) => {
+                        vscode.workspace.openTextDocument(uri)
+                            .then(textDocument => {
+                                let fileItem = new FileItem(textDocument, 
+                                    vscode.TreeItemCollapsibleState.Collapsed)
+                                secsMessageProvider.addTreeItem(fileItem);
+                            });
+                    });
+                });
+        });
+        secsMessageProvider.refresh();
     }
 }
 
@@ -51,6 +73,10 @@ export function revealLine(line: number) {
     } else {
         vscode.window.showWarningMessage("Reveal fail. Can't find any active text.");
     }
+}
+
+export function revealTextDocument(textDocument : vscode.TextDocument) {
+    vscode.window.showTextDocument(textDocument);
 }
 
 export function revealPosition(position1: vscode.Position, position2: vscode.Position) {
@@ -69,7 +95,7 @@ export function revealPosition(position1: vscode.Position, position2: vscode.Pos
 }
 
 export function parseSecsMessage(textDocument : vscode.TextDocument) : [SecsMessage, vscode.Position, vscode.Position][] {
-    let re = /(?<header>\S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\.([^\w]|$))/gs;
+    let re = /(?<header>\S*):\s*(?<command>'[s,S]\d{1,2}[f,F]\d{1,2}')\s*(?<reply>W)?\s*(?<comment>\/\*[^(*\/)]*\*\/)+\s*(?<body>.*?\.(\n|\r|$))/gs;
     let fullText = textDocument.getText();
     let result;
     let secsMessages : [SecsMessage, vscode.Position, vscode.Position][]  = [];

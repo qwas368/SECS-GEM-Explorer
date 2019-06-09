@@ -182,7 +182,7 @@ export class FileItem extends vscode.TreeItem {
 					let messageItem = new MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None, {
 						command: 'extension.revealLine',
 						title: 'Go To SECS Message.',
-						arguments: [position1, position2]
+						arguments: [position1, position2, this.textDocument]
 					});
 
 					if (messageItem.secsMessage.ceidKeyword === "CarrierIDRead" && group.length === 0) {

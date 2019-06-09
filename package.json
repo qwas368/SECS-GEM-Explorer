@@ -11,7 +11,8 @@
   ],
   "activationEvents": [
     "*",
-    "onCommand:extension.secs.active",
+    "onCommand:extension.secs.explore.file",
+    "onCommand:extension.secs.explore.folder",
     "onCommand:extension.secs.setting",
     "onView:secs-messages"
   ],
@@ -36,8 +37,12 @@
     },
     "commands": [
       {
-        "command": "extension.secs.active",
-        "title": "SECS/GEM Explorer: Active"
+        "command": "extension.secs.explore.file",
+        "title": "SECS/GEM Explorer: Explore File"
+      },
+      {
+        "command": "extension.secs.explore.folder",
+        "title": "SECS/GEM Explorer: Explore Workspace"
       },
       {
         "command": "extension.secs.setting",
