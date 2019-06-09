@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { SecsMessageProvider, MessageItem, FileItem } from './secsMessageProvider';
 import { SecsMessage } from './model/secsMessage';
+import * as R from 'ramda';
 
 var secsMessageProvider: SecsMessageProvider;
 
