@@ -6,7 +6,6 @@
 * delete file
 * 過濾s6f1
 * high light s2f41
-* tsk的carrierid是16碼...
 
 
 ## publish

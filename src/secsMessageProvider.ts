@@ -148,7 +148,7 @@ export class GroupMessageItem extends vscode.TreeItem {
 		let [firstItem, ..._] = this.messageItems;
 		if (firstItem) {
 			let reg = /'(?<carrierId>\w{8})'/gi;
-			let result = reg.exec(firstItem.secsMessage.body);
+			let result = reg.exec(firstItem.secsMessage.body.replace(/\s/g, ''));
 			if (result && result.groups)
 				return result.groups.carrierId;
 		}

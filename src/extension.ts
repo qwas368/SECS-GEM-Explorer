@@ -46,18 +46,17 @@ function exploreFolder() {
     if (vscode.workspace.workspaceFolders) {
         vscode.workspace.workspaceFolders.forEach((folder) => {
             vscode.workspace.findFiles(new vscode.RelativePattern(folder, '*'))
-                .then((uris) => {
-                    uris.forEach((uri) => {
-                        vscode.workspace.openTextDocument(uri)
-                            .then(textDocument => {
-                                let fileItem = new FileItem(textDocument, 
-                                    vscode.TreeItemCollapsibleState.Collapsed)
-                                secsMessageProvider.addTreeItem(fileItem);
-                            });
+                .then((uris) => uris.map(uri => vscode.workspace.openTextDocument(uri)))
+                .then(textDocuments => Promise.all(textDocuments))
+                .then(textDocuments => {
+                    textDocuments.forEach(textDocument => {
+                        let fileItem = new FileItem(textDocument, 
+                            vscode.TreeItemCollapsibleState.Collapsed);
+                        secsMessageProvider.addTreeItem(fileItem);
                     });
+                    secsMessageProvider.refresh();
                 });
         });
-        secsMessageProvider.refresh();
     }
 }
 

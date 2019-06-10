@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 
 export class SecsMessage {
-    public readonly streamFunction: [number, number];
 	constructor(
 		public readonly header: string,
         public readonly body: string,
@@ -9,10 +8,11 @@ export class SecsMessage {
         public readonly comment: string
 	) {
         this.command = this.command.replace(/\'/g, '');
-        this.streamFunction = this.toStreamFunction(command);
+        this.streamFunction = this.parseCommand(command);
     }
 
-    toStreamFunction(command:string) : [number, number] {
+    public readonly streamFunction: [number, number];
+    parseCommand(command:string) : [number, number] {
         let reg = /S(?<stream>\d*)F(?<function>\d*)/gi;
         let result = reg.exec(command.replace(/\'/g, ''));
         if (result) {
