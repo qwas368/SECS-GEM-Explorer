@@ -3,8 +3,8 @@
 * 顯示carrierId
 * refresh按鈕
 * enable all event
-* delete file
 * 過濾s6f1
+* delete file
 * high light s2f41
 * 加上config
 * 加上badge

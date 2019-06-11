@@ -13,31 +13,8 @@ import * as assert from 'assert';
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("Extension Tests", function () {
-
     // Defines a Mocha unit test
-    test("Something 1", function() {
+    test("Hello world", function() {
         assert.equal(-1, [1, 2, 3].indexOf(5));
-        assert.equal(-1, [1, 2, 3].indexOf(0));
-    });
-
-    // Defines a Mocha unit test
-    test("Something 2", function() {
-        assert.equal(-1, [1, 2, 3].indexOf(5));
-        assert.equal(-1, [1, 2, 3].indexOf(0));
-    });
-});
-
-suite("Extension Tests2", function () {
-
-    // Defines a Mocha unit test
-    test("Something 1", function() {
-        assert.equal(-1, [1, 2, 3].indexOf(5));
-        assert.equal(-1, [1, 2, 3].indexOf(0));
-    });
-
-    // Defines a Mocha unit test
-    test("Something 2", function() {
-        assert.equal(-1, [1, 2, 3].indexOf(5));
-        assert.equal(-1, [1, 2, 3].indexOf(0));
     });
 });
