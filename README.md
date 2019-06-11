@@ -6,6 +6,8 @@
 * delete file
 * 過濾s6f1
 * high light s2f41
+* 加上config
+* 加上badge
 
 
 ## publish

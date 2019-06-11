@@ -10,6 +10,7 @@ var secsMessageProvider: SecsMessageProvider;
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+    console.log(1);
     // init
     secsMessageProvider = new SecsMessageProvider();
 
@@ -34,11 +35,11 @@ export function deactivate() {}
 function explore() {
     if (vscode.window.activeTextEditor) {
         let fileItem = new FileItem(vscode.window.activeTextEditor.document, 
-            vscode.TreeItemCollapsibleState.Collapsed)
+            vscode.TreeItemCollapsibleState.Collapsed);
         secsMessageProvider.addTreeItem(fileItem);
         secsMessageProvider.refresh();
     } else {
-        vscode.window.showWarningMessage("No active text.")
+        vscode.window.showWarningMessage("No active text.");
     }
 }
 
