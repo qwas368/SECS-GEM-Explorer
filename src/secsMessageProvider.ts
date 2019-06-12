@@ -6,16 +6,16 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { SecsMessage } from './model/secsMessage';
 import { revealLine, parseSecsMessage } from './extension';
+import { cfg } from './config';
 
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<MessageItem | undefined> = this._onDidChangeTreeData.event;
 
-	public treeItem : vscode.TreeItem[];
-	public hideUnknownS6F11 : boolean = true;
-	public hideS6F12 : boolean = true;
-	public hideS1F1andS1F2 : boolean = true;
-	
+	public treeItem: vscode.TreeItem[];
+	public hideS6F12: boolean = true;
+	public hideS1F1andS1F2: boolean = true;
+
 	constructor() {
 		this.treeItem = [];
 	}
@@ -30,17 +30,19 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 
 	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<vscode.TreeItem[]> {
 		return element instanceof FileItem ? element.subTreeItems
-			:  element instanceof GroupMessageItem ? this.messageItemFilter(element.subTreeItems)
-			:  this.treeItem;
+			: element instanceof GroupMessageItem ? this.messageItemFilter(element.subTreeItems)
+			: this.treeItem;
 	}
 
 	public addTreeItem(treeItem: vscode.TreeItem) {
 		let duplicateItem = this.treeItem
 			.find(element => element.id === treeItem.id);
-		if (duplicateItem && duplicateItem instanceof FileItem)
+		if (duplicateItem && duplicateItem instanceof FileItem) {
 			duplicateItem.refresh();
-		else
+		}
+		else {
 			this.treeItem.push(treeItem);
+		}
 	}
 
 	private pathExists(p: string): boolean {
@@ -53,16 +55,20 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		return true;
 	}
 
-	private messageItemFilter(messageItems: MessageItem[]) : MessageItem[] {
+	private messageItemFilter(messageItems: MessageItem[]): MessageItem[] {
 		return messageItems.filter(e => {
-			if (this.hideUnknownS6F11 && e.secsMessage.command === "S6F11" && e.secsMessage.ceidKeyword === "CollectionEventID")
+			if (cfg().hideUnusedS6F11 && e.secsMessage.command === "S6F11" && e.secsMessage.ceidKeyword === "CollectionEventID") {
 				return false;
-			else if (this.hideS6F12 && e.secsMessage.command === "S6F12")
+			}
+			else if (this.hideS6F12 && e.secsMessage.command === "S6F12") {
 				return false;
-			else if (this.hideS1F1andS1F2 && (e.secsMessage.command === "S1F1" || e.secsMessage.command === "S1F2"))
+			}
+			else if (this.hideS1F1andS1F2 && (e.secsMessage.command === "S1F1" || e.secsMessage.command === "S1F2")) {
 				return false;
-			else
+			}
+			else {
 				return true;
+			}
 		});
 	}
 }
@@ -91,8 +97,7 @@ export class MessageItem extends vscode.TreeItem {
 		return '';
 	}
 
-	labelDisplay(secsMessage : SecsMessage) : string {
-		this.label
+	labelDisplay(secsMessage: SecsMessage): string {
 		if (secsMessage.streamFunction === [6, 11]) {
 			return secsMessage.ceidKeyword;
 		} else {
@@ -101,26 +106,26 @@ export class MessageItem extends vscode.TreeItem {
 	}
 
 	initIcon() {
-		let iconPath = (iconFile : string) => {
+		let iconPath = (iconFile: string) => {
 			return {
 				light: path.join(__filename, '..', '..', 'resources', 'light', iconFile),
 				dark: path.join(__filename, '..', '..', 'resources', 'dark', iconFile)
 			};
-		}
+		};
 
 		this.iconPath = this.secsMessage.command === 'S5F1' ? iconPath('attention.svg')
-					  : this.secsMessage.command === 'S3F17' ? iconPath('proceed.svg')
-					  : this.secsMessage.command === 'S6F11' ? iconPath('flash.svg')
-					  : this.secsMessage.streamFunction[1]%2 === 0 ? iconPath('reply.svg')
-					  : iconPath('c.png');
+			: this.secsMessage.command === 'S3F17' ? iconPath('proceed.svg')
+			: this.secsMessage.command === 'S6F11' ? iconPath('flash.svg')
+			: this.secsMessage.streamFunction[1] % 2 === 0 ? iconPath('reply.svg')
+			: iconPath('c.png');
 	}
 
 	initlabel() {
 		// [S6F11] (ceidKeyword| alertKeyword | header)
 		this.label = `[S${this.secsMessage.streamFunction[0]}F${this.secsMessage.streamFunction[1]}] `;
-		this.label += this.secsMessage.command === "S6F11" ? this.secsMessage.ceidKeyword 
-					: this.secsMessage.command === "S5F1" ? this.secsMessage.alertKeyword 
-					: this.secsMessage.header;
+		this.label += this.secsMessage.command === "S6F11" ? this.secsMessage.ceidKeyword
+			: this.secsMessage.command === "S5F1" ? this.secsMessage.alertKeyword
+			: this.secsMessage.header;
 	}
 }
 
@@ -144,20 +149,21 @@ export class GroupMessageItem extends vscode.TreeItem {
 	};
 
 	// 從messageItems中的第一個取得carrierId，取不到時回傳unknown carrierId
-	getCarrierId() : string {
+	getCarrierId(): string {
 		let [firstItem, ..._] = this.messageItems;
-		if (firstItem) {
+		if (firstItem && firstItem.secsMessage.ceidKeyword === "CarrierIDRead") {
 			let reg = /'(?<carrierId>\w{8})'/gi;
 			let result = reg.exec(firstItem.secsMessage.body.replace(/\s/g, ''));
-			if (result && result.groups)
+			if (result && result.groups) {
 				return result.groups.carrierId;
+			}
 		}
 		return 'unknown';
 	}
 }
 
 export class FileItem extends vscode.TreeItem {
-	
+
 	constructor(
 		public readonly textDocument: TextDocument,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
@@ -176,7 +182,7 @@ export class FileItem extends vscode.TreeItem {
 	get subTreeItems(): GroupMessageItem[] {
 		if (!this._subTreeItems) {
 			var [group, groups] = parseSecsMessage(this.textDocument)
-				.reduce((acc : [MessageItem[], MessageItem[][]], element) => {
+				.reduce((acc: [MessageItem[], MessageItem[][]], element) => {
 					let [group, groups] = acc;
 					let [secsMessage, position1, position2] = element;
 					let messageItem = new MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None, {
@@ -196,9 +202,9 @@ export class FileItem extends vscode.TreeItem {
 					}
 					return [group, groups];
 				}, [[], []]);
-				
 
-				this._subTreeItems = [...groups, group].map(group => new GroupMessageItem(group, vscode.TreeItemCollapsibleState.Collapsed));
+
+			this._subTreeItems = [...groups, group].map(group => new GroupMessageItem(group, vscode.TreeItemCollapsibleState.Collapsed));
 		}
 		return this._subTreeItems;
 	}

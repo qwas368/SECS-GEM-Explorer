@@ -1,7 +1,7 @@
 {
-  "name": "secs-message-parser",
-  "displayName": "SECS Message Parser",
-  "description": "analysis secs command",
+  "name": "secs-message-explorer",
+  "displayName": "SECS Message Explorer",
+  "description": "Explore secs command",
   "version": "0.0.1",
   "publisher": "ychu0",
   "engines": {
@@ -61,6 +61,17 @@
           "when": "view == secs-messages && viewItem == TreeItem"
         }
       ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Secs Message Explorer",
+      "properties": {
+        "secs.hideUnusedS6F11": {
+            "type": "boolean",
+            "description": "是否隱藏無用的S6F11訊息？",
+            "default": true
+        }
+      }
     }
   },
   "scripts": {
