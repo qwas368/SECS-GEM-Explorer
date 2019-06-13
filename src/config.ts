@@ -11,6 +11,7 @@ export function getConfiguration(): Configuration {
     const outConfig: Configuration = {};
 
     withConfigValue(config, outConfig, 'hideUnusedS6F11');
+    withConfigValue(config, outConfig, 'hideUnusedS6F1');
 
     return outConfig;
 }

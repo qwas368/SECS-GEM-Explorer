@@ -7,6 +7,7 @@ import * as path from 'path';
 import { SecsMessage } from './model/secsMessage';
 import { revealLine, parseSecsMessage } from './extension';
 import { cfg } from './config';
+import { Configuration } from './model/configuration';
 
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
@@ -14,7 +15,6 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 
 	public treeItem: vscode.TreeItem[];
 	public hideS6F12: boolean = true;
-	public hideS1F1andS1F2: boolean = true;
 
 	constructor() {
 		this.treeItem = [];
@@ -30,7 +30,7 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 
 	getChildren(element?: vscode.TreeItem): vscode.ProviderResult<vscode.TreeItem[]> {
 		return element instanceof FileItem ? element.subTreeItems
-			: element instanceof GroupMessageItem ? this.messageItemFilter(element.subTreeItems)
+			: element instanceof GroupMessageItem ? messageItemFilter(element.subTreeItems, cfg())
 			: this.treeItem;
 	}
 
@@ -53,23 +53,6 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		}
 
 		return true;
-	}
-
-	private messageItemFilter(messageItems: MessageItem[]): MessageItem[] {
-		return messageItems.filter(e => {
-			if (cfg().hideUnusedS6F11 && e.secsMessage.command === "S6F11" && e.secsMessage.ceidKeyword === "CollectionEventID") {
-				return false;
-			}
-			else if (this.hideS6F12 && e.secsMessage.command === "S6F12") {
-				return false;
-			}
-			else if (this.hideS1F1andS1F2 && (e.secsMessage.command === "S1F1" || e.secsMessage.command === "S1F2")) {
-				return false;
-			}
-			else {
-				return true;
-			}
-		});
 	}
 }
 
@@ -212,4 +195,23 @@ export class FileItem extends vscode.TreeItem {
 	public refresh() {
 		this._subTreeItems = undefined;
 	}
+}
+
+// function
+
+// [pure]
+export function messageItemFilter(messageItems: MessageItem[], cfg : Configuration): MessageItem[] {
+	return messageItems.filter(e => {
+		if (cfg.hideUnusedS6F11 && e.secsMessage.command === "S6F11" && e.secsMessage.ceidKeyword === "CollectionEventID") {
+			return false;
+		} else if (cfg.hideUnusedS6F11 && e.secsMessage.command === "S6F12") {
+			return false;
+		} else if (cfg.hideUnusedS6F1 && e.secsMessage.command === "S6F1") {
+			return false;
+		} else if (e.secsMessage.command === "S1F1" || e.secsMessage.command === "S1F2") {
+			return false;
+		} else {
+			return true;
+		}
+	});
 }

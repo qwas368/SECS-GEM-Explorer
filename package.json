@@ -39,11 +39,11 @@
     "commands": [
       {
         "command": "extension.secs.explore.file",
-        "title": "SECS/GEM Explorer: Explore File"
+        "title": "SECS/GEM Explorer: File"
       },
       {
         "command": "extension.secs.explore.folder",
-        "title": "SECS/GEM Explorer: Explore Workspace"
+        "title": "SECS/GEM Explorer: Workspace"
       },
       {
         "command": "extension.secs.setting",
@@ -67,9 +67,14 @@
       "title": "Secs Message Explorer",
       "properties": {
         "secs.hideUnusedS6F11": {
-            "type": "boolean",
-            "description": "是否隱藏無用的S6F11訊息？",
-            "default": true
+          "type": "boolean",
+          "description": "是否隱藏無用的S6F11訊息？",
+          "default": true
+        },
+        "secs.hideUnusedS6F1": {
+          "type": "boolean",
+          "description": "是否隱藏S6F1訊息？",
+          "default": true
         }
       }
     }
@@ -89,6 +94,7 @@
     "@types/mocha": "^2.2.42"
   },
   "dependencies": {
-    "@types/ramda": "^0.26.9"
+    "@types/ramda": "^0.26.9",
+    "immutable": "^4.0.0-rc.12"
   }
 }

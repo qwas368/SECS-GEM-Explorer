@@ -1,18 +1,10 @@
-//
-// Note: This example test is leveraging the Mocha test framework.
-// Please refer to their documentation on https://mochajs.org/ for help.
-//
-
 // The module 'assert' provides assertion methods from node
+import { Configuration } from '../model/configuration';
 import * as assert from 'assert';
-import { GroupMessageItem, MessageItem } from '../secsMessageProvider';
+import * as SecsMsgP from '../secsMessageProvider';
 import * as extension from '../extension';
 import * as vscode from 'vscode';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
-// import * as vscode from 'vscode';
-// import * as myExtension from '../extension';
+import * as Immutable from 'immutable';
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("GroupMessageItem Tests", function () {
@@ -46,13 +38,60 @@ suite("GroupMessageItem Tests", function () {
             let messageItems = extension.parseSecsMessage(doc)
                 .map(element => {
                     let [secsMessage, position1, position2] = element;
-                    return new MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None);
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None);
                 });
-            return new GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed);
+            return new SecsMsgP.GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed);
         });
 
-        test("case 1", function() {
-            assert.equal(case1.getCarrierId(), 'WF115524');
+        assert.equal(case1.getCarrierId(), 'WF115524');
+    });
+});
+
+suite("SecsMessageProvider Tests", function () {
+    test('messageItemFilter', async () => {
+        let case1 = await vscode.workspace.openTextDocument({
+            language: 'log',
+            content: `SECS. S3F17: 'S3F17' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
+            .
+            SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
+            .
+            SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
+            <L [3]
+                <U4 [1] 4993480 > /* DATAID */
+                <U4 [1] 8003 > /* Name=CEID Keyword=CollectionEventID */
+            >
+            .
+            SECS. S6F1: 'S6F1' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
+            .
+            SECS. S1F1: 'S1F1' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
+            .
+            SECS. S6F12: 'S6F12' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
+            .`
+        })
+        .then(doc => {
+            return extension.parseSecsMessage(doc)
+                .map(element => {
+                    let [secsMessage, position1, position2] = element;
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, vscode.TreeItemCollapsibleState.None);
+                });
         });
+
+        const cfg : Configuration = {
+            hideUnusedS6F11: true,
+            hideUnusedS6F1: true
+        };
+        assert.equal(SecsMsgP.messageItemFilter(case1, cfg).length, 2);
+
+        const cfg2 = {
+            ...cfg,
+            hideUnusedS6F1: false
+        };
+        assert.equal(SecsMsgP.messageItemFilter(case1, cfg2).length, 3);
+
+        const cfg3 = {
+            ...cfg,
+            hideUnusedS6F11: false
+        };
+        assert.equal(SecsMsgP.messageItemFilter(case1, cfg3).length, 4);
     });
 });

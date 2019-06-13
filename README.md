@@ -3,7 +3,6 @@
 * 寬鬆判斷carrierId，並顯示contentmap的內容
 * refresh按鈕
 * enable all event
-* 過濾s6f1
 * delete file
 * high light s2f41
 * 加上badge

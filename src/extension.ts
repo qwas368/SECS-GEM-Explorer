@@ -21,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
         revealTextDocument(t1);
         revealPosition(p1, p2);
     });
-    vscode.commands.registerCommand('extension.secs.setting', () =>  {
+    vscode.commands.registerCommand('extension.secs.setting', () => {
         vscode.window.showQuickPick(['1', '2', '3']).then(x => {
             vscode.window.showInformationMessage(x!);
         });
