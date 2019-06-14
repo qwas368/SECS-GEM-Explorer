@@ -95,6 +95,7 @@
   },
   "dependencies": {
     "@types/ramda": "^0.26.9",
-    "immutable": "^4.0.0-rc.12"
+    "immutable": "^4.0.0-rc.12",
+    "rxjs": "^6.5.2"
   }
 }

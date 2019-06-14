@@ -4,6 +4,8 @@ import * as vscode from 'vscode';
 import { SecsMessageProvider, MessageItem, FileItem } from './secsMessageProvider';
 import { SecsMessage } from './model/secsMessage';
 import { TextDecoder } from 'util';
+import * as Observable from 'rxjs';
+import { debounceTime, map } from 'rxjs/operators';
 
 var secsMessageProvider: SecsMessageProvider;
 
@@ -22,9 +24,20 @@ export function activate(context: vscode.ExtensionContext) {
         revealPosition(p1, p2);
     });
     vscode.commands.registerCommand('extension.secs.setting', () => {
-        vscode.window.showQuickPick(['1', '2', '3']).then(x => {
+        vscode.window.showQuickPick(['1$(alert);', '2', '3']).then(x => {
             vscode.window.showInformationMessage(x!);
         });
+    });
+
+    // event
+    Observable.bindCallback()
+    Observable.fromEvent(vscode.window.onDidChangeTextEditorSelection, "onDidChangeTextEditorSelection" ).pipe(
+        debounceTime(1000),
+        map(data => data.srcElement)
+    )
+
+    vscode.window.onDidChangeTextEditorSelection((e) => {
+        secsMessageProvider.refresh();
     });
 }
 

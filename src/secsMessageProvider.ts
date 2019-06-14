@@ -1,7 +1,5 @@
 import * as vscode from 'vscode';
-import {
-	TextDocument
-} from 'vscode';
+import { TextDocument } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import { SecsMessage } from './model/secsMessage';
@@ -12,9 +10,7 @@ import { Configuration } from './model/configuration';
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<MessageItem | undefined> = this._onDidChangeTreeData.event;
-
 	public treeItem: vscode.TreeItem[];
-	public hideS6F12: boolean = true;
 
 	constructor() {
 		this.treeItem = [];
