@@ -95,7 +95,9 @@
   },
   "dependencies": {
     "@types/ramda": "^0.26.9",
+    "guid-typescript": "^1.0.9",
     "immutable": "^4.0.0-rc.12",
+    "ramda": "^0.26.1",
     "rxjs": "^6.5.2"
   }
 }

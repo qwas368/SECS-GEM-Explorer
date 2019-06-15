@@ -9,7 +9,7 @@ export function cfg(): Configuration {
 export function getConfiguration(): Configuration {
     const config = vscode.workspace.getConfiguration("secs");
     const outConfig: Configuration = {};
-
+    
     withConfigValue(config, outConfig, 'hideUnusedS6F11');
     withConfigValue(config, outConfig, 'hideUnusedS6F1');
 
@@ -26,7 +26,7 @@ function withConfigValue<C, K extends Extract<keyof C, string>>(
         return;
     }
 
-    const value = config.get<vscode.WorkspaceConfiguration[K] | undefined>(key, undefined);
+    const value = config.get<C[K] | undefined>(key, undefined);
     if (typeof value !== 'undefined') {
         outConfig[key] = value;
     }
