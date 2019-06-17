@@ -1,13 +1,13 @@
 ## Requirements
 
-* 寬鬆判斷carrierId，並顯示contentmap的內容
+* 寬鬆判斷carrierId，並顯示contentmap的內容 (wafer數量、Job Id、PPID)
 * refresh按鈕
-* enable all event
+* enable all event (加上快速setting)
 * delete file
 * high light s2f41
 * 加上badge
 * group 功能
-
+* s6f11的tree view文字消失
 
 ## publish
 
