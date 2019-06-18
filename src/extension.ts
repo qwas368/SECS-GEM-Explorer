@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { SecsMessageProvider, MessageItem, FileItem } from './secsMessageProvider';
+import { SecsMessageProvider, MessageItem, FileItem } from './provider/secsMessageProvider';
 import { SecsMessage } from './model/secsMessage';
 import { TextDecoder } from 'util';
 import * as Rx from 'rxjs';

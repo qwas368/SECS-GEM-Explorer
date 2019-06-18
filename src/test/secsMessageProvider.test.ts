@@ -1,10 +1,9 @@
 // The module 'assert' provides assertion methods from node
 import { Configuration } from '../model/configuration';
 import * as assert from 'assert';
-import * as SecsMsgP from '../secsMessageProvider';
+import * as SecsMsgP from '../provider/secsMessageProvider';
 import * as extension from '../extension';
 import * as vscode from 'vscode';
-import { async } from 'rxjs/internal/scheduler/async';
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("GroupMessageItem Tests", function () {
@@ -135,5 +134,5 @@ suite("SecsMessageProvider Tests", async function () {
         let prefix3 = '';
         case1[0].labelPrefix(prefix3);
         assert.equal(case1[0].label, origianlLabel);
-    })
+    });
 });

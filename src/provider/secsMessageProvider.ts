@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 import { TextDocument } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { DocumentPosition } from './interface';
-import { SecsMessage } from './model/secsMessage';
-import { parseSecsMessage } from './extension';
-import { cfg } from './config';
-import { Configuration } from './model/configuration';
+import { DocumentPosition } from '../interface';
+import { SecsMessage } from '../model/secsMessage';
+import { parseSecsMessage } from '../extension';
+import { cfg } from '../config';
+import { Configuration } from '../model/configuration';
 import * as R from 'ramda';
 import { Guid } from 'guid-typescript';
 
@@ -72,7 +72,7 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		if (te)
 		{
 			let last = R.last(resultitems.filter(item => underline(item, te!.document, te!.selection.start.line)));
-			if(last) {
+			if (last) {
 				last.labelPrefix(`✏️`);
 			}
 		}
@@ -144,7 +144,7 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
 		public readonly command?: vscode.Command
 	) {
-		super('unknown', collapsibleState,);
+		super('unknown', collapsibleState);
 		this.ulabel = this.getCarrierId();
 		super.label = this.getCarrierId();
 		this.id = Guid.create().toString();
@@ -280,6 +280,7 @@ export function overline (
 	}
 }
 
+// [pure]
 export function underline (
 	messageItem: MessageItem | GroupMessageItem, 
 	textDocument: vscode.TextDocument,
