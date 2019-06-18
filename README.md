@@ -7,7 +7,6 @@
 * high light s2f41
 * 加上badge
 * group 功能
-* s6f11的tree view文字消失
 
 ## publish
 

@@ -125,9 +125,9 @@ export class MessageItem extends vscode.TreeItem implements DocumentPosition {
 	messageFunctionLabel() : string {
 		// [S6F11] (ceidKeyword| alertKeyword | header)
 		return `[S${this.secsMessage.streamFunction[0]}F${this.secsMessage.streamFunction[1]}] `
-			+ this.secsMessage.command === "S6F11" ? this.secsMessage.ceidKeyword
+			+ (this.secsMessage.command === "S6F11" ? this.secsMessage.ceidKeyword
 			: this.secsMessage.command === "S5F1" ? this.secsMessage.alertKeyword
-			: this.secsMessage.header;
+			: this.secsMessage.header);
 	}
 
 	public labelPrefix(prefix: string) : string | undefined {
