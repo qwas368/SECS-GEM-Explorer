@@ -7,6 +7,7 @@
 * high light s2f41
 * 加上badge
 * group 功能
+* 筆的功能有bug
 
 ## publish
 

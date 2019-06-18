@@ -110,14 +110,15 @@ export class MessageItem extends vscode.TreeItem implements DocumentPosition {
 	initIcon() {
 		let iconPath = (iconFile: string) => {
 			return {
-				light: path.join(__filename, '..', '..', 'resources', 'light', iconFile),
-				dark: path.join(__filename, '..', '..', 'resources', 'dark', iconFile)
+				light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconFile),
+				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconFile)
 			};
 		};
 
 		this.iconPath = this.secsMessage.command === 'S5F1' ? iconPath('attention.svg')
 			: this.secsMessage.command === 'S3F17' ? iconPath('proceed.svg')
 			: this.secsMessage.command === 'S6F11' ? iconPath('flash.svg')
+			: this.secsMessage.command === 'S2F41' ? iconPath('powershell.svg')
 			: this.secsMessage.streamFunction[1] % 2 === 0 ? iconPath('reply.svg')
 			: iconPath('c.png');
 	}
@@ -155,8 +156,8 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 	}
 
 	iconPath = {
-		light: path.join(__filename, '..', '..', 'resources', 'light', 'paket.png'),
-		dark: path.join(__filename, '..', '..', 'resources', 'dark', 'paket.png')
+		light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'paket.png'),
+		dark: path.join(__filename, '..', '..', '..','resources', 'dark', 'paket.png')
 	};
 
 	// 從messageItems中的第一個取得carrierId，取不到時回傳unknown carrierId
