@@ -116,8 +116,9 @@ suite("SecsMessageProvider Tests", async function () {
         let td = await textDocument;
         let case1 = parseAndMapMessageItem(td);
 
-        assert.equal(SecsMsgP.underline(case1[0], td, 1), true);
-        assert.equal(SecsMsgP.underline(case1[2], td, 1), false);
+        assert.equal(SecsMsgP.underline(case1[0].textDocument, td, case1[0].p1, 1), true);
+        assert.equal(SecsMsgP.underline(case1[2].textDocument, td, case1[2].p1, 1), false);
+        assert.equal(SecsMsgP.underline(case1[3].textDocument, td, case1[3].p2, 2), false);
     });
 
     test('MessageItem labelSuffix', async () => {

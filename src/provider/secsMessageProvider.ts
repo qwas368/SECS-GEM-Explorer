@@ -67,16 +67,28 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 			}
 		});
 
+		this.editMark(resultitems);
+
+		return resultitems;
+	}
+
+	private editMark(items: (MessageItem | GroupMessageItem)[]) {
 		// 加上focus mark
 		let te = vscode.window.activeTextEditor;
 		if (te)
 		{
-			let last = R.last(resultitems.filter(item => underline(item, te!.document, te!.selection.start.line)));
-			if (last) {
-				last.labelPrefix(`✏️`);
+			let isGroupMessage = (item : (MessageItem | GroupMessageItem)) =>  item instanceof GroupMessageItem;
+			let isNotLastOfItems = (item : (MessageItem | GroupMessageItem)) => item !== R.last(items);
+			let isLastOfItemsButInScope = (item : (MessageItem | GroupMessageItem)) => item === R.last(items) && underline(item.textDocument, te!.document, te!.selection.start, item.p2.line);
+
+			let targetItem = R.last(items.filter(item => underline(item.textDocument, te!.document, item.p1, te!.selection.start.line)));
+			if (targetItem && 
+				(isGroupMessage(targetItem) ||
+				 isNotLastOfItems(targetItem) ||
+				 isLastOfItemsButInScope(targetItem))) {
+				targetItem.labelPrefix(`✏️`);
 			}
 		}
-		return resultitems;
 	}
 }
 
@@ -283,11 +295,12 @@ export function overline (
 
 // [pure]
 export function underline (
-	messageItem: MessageItem | GroupMessageItem, 
-	textDocument: vscode.TextDocument,
+	document: vscode.TextDocument, 
+	currentDocument: vscode.TextDocument,
+	position: vscode.Position,
 	ln: number
 	) : boolean {
-	if (messageItem.textDocument === textDocument && messageItem.p1.line <= ln) {
+	if (document === currentDocument && position.line <= ln) {
 		return true;
 	} else {
 		return false;

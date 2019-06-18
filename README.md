@@ -8,6 +8,7 @@
 * 加上badge
 * group 功能
 * 筆的功能有bug
+* package-lock為什麼一直變動
 
 ## publish
 

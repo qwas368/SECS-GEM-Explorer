@@ -34,7 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
             observer.next(e);
         });
     })
-        .pipe(debounceTime(500)) // 延遲500ms取最後值
+        .pipe(debounceTime(200)) // 延遲200ms取最後值
         .subscribe(function (value: vscode.TextEditorSelectionChangeEvent) {
             secsMessageProvider.refresh();
         });
