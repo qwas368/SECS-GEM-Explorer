@@ -3,15 +3,31 @@ import { SecsMessage } from '../model/secsMessage';
 import * as R from 'ramda';
 import { stringify } from 'querystring';
 
+type s3f17Content = {
+    carrierId: string,
+    contentMap: {
+        lotId: string,
+        waferId: string
+    }[]
+};
+
 // [pure]
 export function getCarrierInfo(secsMessages: SecsMessage[]): CarrierInfo {
-    let contentMap: {lotId: string, waferId: string}[] = [];
+    let foup: s3f17Content = {carrierId: "", contentMap: []};
     let carrierId: string = "";
     let ppids: string[] = [];
+    let cancelCarrier: boolean = false;
+
+    let isCancelCarrier = (c: s3f17Content) => c.contentMap.length === 0;
 
     for (var secsMessage of secsMessages) {
         if (secsMessage.command === 'S3F17') {
-            contentMap = getContentMap(secsMessage);
+            let t = getS3F17Content(secsMessage);
+            if (!isCancelCarrier(t)) {
+                foup = t;
+            } else {
+                cancelCarrier = true;
+            }
         } else if (secsMessage.command === 'S6F11' && secsMessage.ceidKeyword === "CarrierIDRead") {
             carrierId = getCarrierId(secsMessage);
         } else if (secsMessage.command === 'S16F11' || secsMessage.command === 'S16F15') {
@@ -20,15 +36,25 @@ export function getCarrierInfo(secsMessages: SecsMessage[]): CarrierInfo {
     }
 
     return new CarrierInfo(
-        carrierId,
-        R.uniq(contentMap.filter(x => x.waferId !== '').map(x => x.lotId)),
-        contentMap.filter(x => x.waferId !== '').length, 
-        ppids
+        carrierId !== "" ? carrierId : foup.carrierId,
+        R.uniq(foup.contentMap.filter(x => x.waferId !== '').map(x => x.lotId)),
+        foup.contentMap.filter(x => x.waferId !== '').length,
+        ppids,
+        cancelCarrier
     );
 }
 
-function getContentMap(secsMessage: SecsMessage): {lotId: string, waferId: string}[] {
-    let contentMap: {lotId: string, waferId: string}[] = [];
+function getS3F17Content(secsMessage: SecsMessage): s3f17Content {
+    let foup: s3f17Content = {carrierId: "", contentMap: []};
+
+    // get carrierId 
+    let reg = /'.*?'/gi;
+    let matchArray = secsMessage.body.replace(/\s/g, '').match(reg);
+    let stringArray = matchArray ? matchArray.map(value => value.replace(/'/g, '')) : [];
+    let [command, carrierId,...tail] = stringArray;
+    foup.carrierId = carrierId;
+
+    // get contentMap
     let checkReg = /<L\[2\]<A\[10\]'ContentMap'><L\[25\](?<wafers>(<L\[2\]<A\[\d*\]'(.*?)'><A\[\d*\]'(.*?)'>>){25})\>\>/gi;
     let checkedResult = checkReg.exec(secsMessage.body.replace(/[\r\n ]|(\/\*.*?\*\/)/g, ''));
     if (checkedResult && checkedResult.groups) {
@@ -37,11 +63,11 @@ function getContentMap(secsMessage: SecsMessage): {lotId: string, waferId: strin
         let waferInfo: RegExpExecArray | null;
         while (null !== (waferInfo = re.exec(noWhiteSpaceBody))) {
             if (waferInfo.groups) {
-                contentMap.push({lotId: waferInfo.groups.lotId, waferId: waferInfo.groups.waferId});
+                foup.contentMap.push({ lotId: waferInfo.groups.lotId, waferId: waferInfo.groups.waferId });
             }
         }
     }
-    return contentMap;
+    return foup;
 }
 
 function getCarrierId(secsMessage: SecsMessage): string {
@@ -59,17 +85,17 @@ function getPpid(secsMessage: SecsMessage): string[] {
     if (secsMessage.command === 'S16F11' || secsMessage.command === 'S16F15') {
         let reg = /'.*?'/gi;
         let matchArray = secsMessage.body.replace(/\s/g, '').match(reg);
-        let jobArray = matchArray ? matchArray.map(value => value.replace(/'/g, '')) : [];
+        let stringArray = matchArray ? matchArray.map(value => value.replace(/'/g, '')) : [];
 
         // recursive function, 取三個值將第三個值判定為ppid
-        let ppids = (function extractPpid(jobArray: string[]): string[] {
-            if (jobArray.length === 0) {
+        let ppids = (function extractPpid(array: string[]): string[] {
+            if (array.length === 0) {
                 return [];
             } else {
-                let [pjId, carrierId, ppid, ...rest] = jobArray;
-                return [ppid, ...extractPpid(rest)];
+                let [pjId, carrierId, ppid, ...tail] = array;
+                return [ppid, ...extractPpid(tail)];
             }
-        })(jobArray);
+        })(stringArray);
 
         return ppids;
     } else {

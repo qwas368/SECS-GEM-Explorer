@@ -161,20 +161,28 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 		public readonly command?: vscode.Command
 	) {
 		super('unknown', collapsibleState);
-		this.ulabel = this.getCarrierId();
-		super.label = this.getCarrierId();
-		this.id = Guid.create().toString();
 		this.carrierInfo = getCarrierInfo(messageItems.map(x => x.secsMessage));
+		this.ulabel = this.carrierInfo.carrierId || "unknown" ;
+		super.label = this.carrierInfo.carrierId || "unknown";
+		this.id = Guid.create().toString();
+		this.iconPath = this.groupMessageIcon();
 	}
 
 	get subTreeItems(): MessageItem[] {
 		return this.messageItems;
 	}
 
-	iconPath = {
-		light: path.join(__filename, '..', '..', '..', 'resources', 'light', 'paket.png'),
-		dark: path.join(__filename, '..', '..', '..','resources', 'dark', 'paket.png')
-	};
+	groupMessageIcon(): { light: string | Uri; dark: string | Uri } {
+		let iconPath = (iconFile: string) => {
+			return {
+				light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconFile),
+				dark: path.join(__filename, '..', '..', '..', 'resources', 'dark', iconFile)
+			};
+		};
+
+		return this.carrierInfo.cancelCarrier === true ? iconPath('cancelPaket.png')
+			: iconPath('paket.png');
+	}
 
 	// 從messageItems中的第一個取得carrierId，取不到時回傳unknown carrierId
 	getCarrierId(): string {
@@ -190,7 +198,7 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 	}
 
 	get tooltip(): string {
-		return `CarrierId: ${this.carrierInfo.carrierId}\nLotId: ${this.carrierInfo.lotId}\nWafterCount: ${this.carrierInfo.waferCount}\nPPID: ${this.carrierInfo.ppids}`;
+		return `CarrierId: ${this.carrierInfo.carrierId}\nLotId: ${this.carrierInfo.lotId}\nWafter Count: ${this.carrierInfo.waferCount}\nPPID: ${this.carrierInfo.ppids}`;
 	}
 
 	get p1(): vscode.Position {

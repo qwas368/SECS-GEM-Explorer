@@ -10,6 +10,41 @@ suite("GroupMessageItem Tests", function () {
     test('getCarrierId', async () => {
         let case1 = await vscode.workspace.openTextDocument({
             language: 'log',
+            content: `2019-06-08 18:25:25,514 INFO  [345] - SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[5B D3 01 00] */
+            <L [3]
+              <U4 [1] 12531 > /* DATAID */
+              <U4 [1] 11 > /* Name=CEID Keyword=ToolStatusChange */
+              <L [1]
+                <L [2]
+                  <U4 [1] 1 > /* Name=RPTID Keyword=ReportID */
+                  <L [1]
+                    <U1 [1] 3 > /* Name=VID Keyword=SystemState */
+                  >
+                >
+              >
+            >
+          .
+          
+          2019-06-08 18:25:25,514 INFO  [348] - SECSConnection.EventHandler EventHandler@SESConnection : header : 119643 : 5B D3 01 00 
+          2019-06-08 18:25:25,514 INFO  [347] - SECS. ERA: 'S6F12' /* Name=ERA SMSD=SMSD Header=[5B D3 01 00] */
+            <B [1] 00 >
+          .`
+        })
+        .then(doc => {
+            let messageItems = extension.parseSecsMessage(doc)
+                .map(element => {
+                    let [secsMessage, position1, position2] = element;
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None);
+                });
+            return new SecsMsgP.GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed);
+        });
+
+        assert.equal(case1.label, 'unknown');
+    });
+
+    test('getCarrierId', async () => {
+        let case1 = await vscode.workspace.openTextDocument({
+            language: 'log',
             content: `2019-06-08 15:14:37,402 INFO  [85] - SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[99 CF 01 00] */
                 <L [3]
                 <U4 [1] 12396 > /* DATAID */
@@ -43,6 +78,7 @@ suite("GroupMessageItem Tests", function () {
         });
 
         assert.equal(case1.getCarrierId(), 'WF115524');
+        assert.equal(case1.label, 'WF115524');
     });
 });
 
