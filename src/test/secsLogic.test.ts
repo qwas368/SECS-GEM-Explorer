@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
 import { async } from 'rxjs/internal/scheduler/async';
-import { carrierInfo } from '../logic/secsLogic';
+import { getCarrierInfo } from '../logic/secsLogic';
 import * as extension from '../extension';
 import * as SecsMsgP from '../provider/secsMessageProvider';
 
@@ -480,21 +480,21 @@ suite("secsLogic Tests", function () {
     test("carrierInfo", async function() {
         let case1 = parseAndMapSecsMessage(await document1);
 
-        var info1 = carrierInfo(case1);
+        var info1 = getCarrierInfo(case1);
         assert.equal(info1.carrierId, 'WF116882');
         assert.deepEqual(info1.lotId, ['691862300']);
         assert.deepEqual(info1.ppids, ['TR_P_UAA064_H46CTW_AB']);
         assert.equal(info1.waferCount, 25);
 
         let case2 = parseAndMapSecsMessage(await document2);
-        var info2 = carrierInfo(case2);
+        var info2 = getCarrierInfo(case2);
         assert.equal(info2.carrierId, '');
         assert.deepEqual(info2.lotId, []);
         assert.deepEqual(info2.ppids, ['TR_P_UAA064_H46CTW_AB/UAA064_H46CTW_AB/123546']);
         assert.equal(info2.waferCount, 0);
 
         let case3 = parseAndMapSecsMessage(await document3);
-        var info3 = carrierInfo(case3);
+        var info3 = getCarrierInfo(case3);
         assert.equal(info3.carrierId, '');
         assert.deepEqual(info3.lotId, ['691862300', '691862304', '691862303']);
         assert.deepEqual(info3.ppids, []);

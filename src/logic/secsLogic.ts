@@ -4,7 +4,7 @@ import * as R from 'ramda';
 import { stringify } from 'querystring';
 
 // [pure]
-export function carrierInfo(secsMessages: SecsMessage[]): CarrierInfo {
+export function getCarrierInfo(secsMessages: SecsMessage[]): CarrierInfo {
     let contentMap: {lotId: string, waferId: string}[] = [];
     let carrierId: string = "";
     let ppids: string[] = [];

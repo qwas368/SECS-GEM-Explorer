@@ -9,6 +9,8 @@ import { cfg } from '../config';
 import { Configuration } from '../model/configuration';
 import * as R from 'ramda';
 import { Guid } from 'guid-typescript';
+import { CarrierInfo } from '../model/carrierInfo';
+import { getCarrierInfo } from '../logic/secsLogic';
 
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
@@ -152,6 +154,7 @@ export class MessageItem extends vscode.TreeItem implements DocumentPosition {
 export class GroupMessageItem extends vscode.TreeItem implements DocumentPosition  {
 
 	private readonly ulabel: string;
+	private readonly carrierInfo: CarrierInfo;
 	constructor(
 		public readonly messageItems: MessageItem[],
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
@@ -161,6 +164,7 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 		this.ulabel = this.getCarrierId();
 		super.label = this.getCarrierId();
 		this.id = Guid.create().toString();
+		this.carrierInfo = getCarrierInfo(messageItems.map(x => x.secsMessage));
 	}
 
 	get subTreeItems(): MessageItem[] {
@@ -185,15 +189,19 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 		return 'unknown';
 	}
 
-	get p1() : vscode.Position {
+	get tooltip(): string {
+		return `CarrierId: ${this.carrierInfo.carrierId}\nLotId: ${this.carrierInfo.lotId}\nWafterCount: ${this.carrierInfo.waferCount}\nPPID: ${this.carrierInfo.ppids}`;
+	}
+
+	get p1(): vscode.Position {
 		return this.messageItems[0].p1;
 	}
 
-	get p2() : vscode.Position {
+	get p2(): vscode.Position {
 		return this.messageItems[0].p2;
 	}
 
-	get textDocument() : vscode.TextDocument {
+	get textDocument(): vscode.TextDocument {
 		return this.messageItems[0].textDocument;
 	}
 
