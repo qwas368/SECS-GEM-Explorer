@@ -8,6 +8,7 @@ import * as Rx from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 
 var secsMessageProvider: SecsMessageProvider;
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -26,6 +27,15 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showQuickPick(['1$(alert)', '2', '3']).then(x => {
             vscode.window.showInformationMessage(x!);
         });
+    });
+    vscode.commands.registerCommand('extension.secs.explore.deleteEntry', (node: vscode.TreeItem) => {
+        secsMessageProvider.deleteTreeItem(node);
+        vscode.window.showInformationMessage(`Successfully called delete entry on ${node.label}.`);
+        secsMessageProvider.refresh();
+    });
+    vscode.commands.registerCommand('extension.secs.explore.refreshEntry', () => {
+        secsMessageProvider.flush();
+        secsMessageProvider.refresh();
     });
 
     // on select change

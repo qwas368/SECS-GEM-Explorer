@@ -25,6 +25,10 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		this._onDidChangeTreeData.fire();
 	}
 
+	flush(): void {
+		this.treeItem.forEach(x => x instanceof FileItem ? x.refresh() : 0);
+	}
+
 	getTreeItem(element: MessageItem): vscode.TreeItem {
 		return element;
 	}
@@ -43,6 +47,10 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		} else {
 			this.treeItem.push(treeItem);
 		}
+	}
+
+	public deleteTreeItem(treeItem: vscode.TreeItem) {
+		this.treeItem = this.treeItem.filter(item => item.id !== treeItem.id);
 	}
 
 	private pathExists(p: string): boolean {
@@ -172,7 +180,7 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 		return this.messageItems;
 	}
 
-	groupMessageIcon(): { light: string | Uri; dark: string | Uri } {
+	groupMessageIcon(): { light: string | vscode.Uri; dark: string | vscode.Uri } {
 		let iconPath = (iconFile: string) => {
 			return {
 				light: path.join(__filename, '..', '..', '..', 'resources', 'light', iconFile),
@@ -220,6 +228,8 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 }
 
 export class FileItem extends vscode.TreeItem {
+
+	contextValue = 'FileItem';
 
 	constructor(
 		public readonly textDocument: TextDocument,

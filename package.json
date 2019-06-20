@@ -38,6 +38,14 @@
     },
     "commands": [
       {
+        "command": "extension.secs.explore.refreshEntry",
+        "title": "Refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
         "command": "extension.secs.explore.file",
         "title": "SECS/GEM Explorer: File"
       },
@@ -49,17 +57,29 @@
         "command": "extension.secs.setting",
         "title": "SECS/GEM Explorer: Setting"
       },
-      {
-        "command": "extension.gotoMessage",
-        "title": "Edit"
-      }
+			{
+				"command": "extension.secs.explore.deleteEntry",
+				"title": "Delete",
+        "icon": {
+          "light": "resources/light/cancel.svg",
+          "dark": "resources/dark/cancel.svg"
+        }
+			}
     ],
     "menus": {
-      "view/item/context": [
+      "view/title": [
         {
-          "command": "extension.gotoMessage",
-          "when": "view == secs-messages && viewItem == TreeItem"
+          "command": "extension.secs.explore.refreshEntry",
+          "when": "view == secs-messages",
+          "group": "navigation"
         }
+      ],
+      "view/item/context": [
+				{
+					"command": "extension.secs.explore.deleteEntry",
+          "when": "view == secs-messages && viewItem == FileItem",
+          "group": "inline"
+				}
       ]
     },
     "configuration": {
