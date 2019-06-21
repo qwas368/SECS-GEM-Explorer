@@ -1,13 +1,9 @@
 ## Requirements
 
-* 寬鬆判斷carrierId，並顯示contentmap的內容 (wafer數量、Job Id、PPID)
-* refresh按鈕
+* 顯示contentmap的內容 (wafer數量、Job Id、PPID)
 * enable all event (加上快速setting)
-* delete file
-* high light s2f41
 * 加上badge
 * group 功能
-* 筆的功能有bug
 * package-lock為什麼一直變動
 
 ## publish
@@ -22,42 +18,26 @@ For example:
 
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* `secs.hideUnusedS6F11`: enable/disable unused S6F11 message
+* `secs.hideUnusedS6F1`: enable/disable unused S6F1 message
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+* 正在編輯的偵測有一點效能問題
 
 ## Release Notes
 
 Users appreciate release notes as you update your extension.
 
-### 1.0.0
+### 0.0.4
 
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
+Initial release
 
 -----------------------------------------------------------------------------------------------------------
 
-## Working with Markdown
+## Command palette 
 
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+* SECS/GEM Explorer: File - explorer current file
+* SECS/GEM Explorer: Workspace - explorer current workspace
 
 **Enjoy!**
