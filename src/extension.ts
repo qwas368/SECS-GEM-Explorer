@@ -46,7 +46,10 @@ export function activate(context: vscode.ExtensionContext) {
     })
         .pipe(debounceTime(200)) // 延遲200ms取最後值
         .subscribe(function (value: vscode.TextEditorSelectionChangeEvent) {
-            secsMessageProvider.refresh();
+            // 如果異動的testDocument存在於當前treeItem中，就refresh
+            if (secsMessageProvider.treeItem.filter(x => x instanceof FileItem && x.textDocument === value.textEditor.document).length > 0) {
+                secsMessageProvider.refresh();
+            }
         });
 
 }
