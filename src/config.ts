@@ -1,4 +1,4 @@
-import { Configuration } from "./model/configuration";
+import { Configuration, ParserKeyword } from "./model/configuration";
 import * as vscode from 'vscode';
 
 // getConfiguration's shorter
@@ -8,10 +8,15 @@ export function cfg(): Configuration {
 
 export function getConfiguration(): Configuration {
     const config = vscode.workspace.getConfiguration("secs");
-    const outConfig: Configuration = {};
+    const outConfig: Configuration = {
+        messageSetting: {
+            parserKeyword: new ParserKeyword()
+        }
+    };
     
     withConfigValue(config, outConfig, 'hideUnusedS6F11');
     withConfigValue(config, outConfig, 'hideUnusedS6F1');
+    withConfigValue(config, outConfig, 'messageSetting');
 
     return outConfig;
 }

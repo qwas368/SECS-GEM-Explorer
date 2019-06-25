@@ -4,8 +4,13 @@ import { async } from 'rxjs/internal/scheduler/async';
 import { getCarrierInfo } from '../logic/secsLogic';
 import * as extension from '../extension';
 import * as SecsMsgP from '../provider/secsMessageProvider';
+import { ParserKeyword } from '../model/configuration';
 
 suite("secsLogic Tests", function () {
+    let parserKeyword: ParserKeyword = {
+        carrierIdRead: ["CarrierIDRead", "CarrierIDRead_Done"]
+    };
+
     let document1 = vscode.workspace.openTextDocument({
         language: 'log',
         content: `SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[00 18 00 00] */
@@ -640,6 +645,32 @@ suite("secsLogic Tests", function () {
         >
       .`
     });
+    let document5 = vscode.workspace.openTextDocument({
+        language: 'log',
+        content: `SECS. S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[00 18 00 00] */
+        <L [3]
+            <U4 [1] 1834 > /* DATAID */
+            <U4 [1] 87018 > /* Name=CEID Keyword=CarrierIDRead_Done */
+            <L [2]
+            <L [2]
+                <U4 [1] 13 > /* Name=RPTID Keyword=ReportID */
+                <L [2]
+                <A [16] '2019060206513481' > /* Name=VID Keyword=GemTime */
+                <U1 [1] 5 > /* Name=VID Keyword=ControlState */
+                >
+            >
+            <L [2]
+                <U4 [1] 202 > /* Name=RPTID Keyword=ReportID */
+                <L [3]
+                <A [5] 'FIMS1' > /* Name=VID Keyword=LocationID */
+                <U1 [1] 2 > /* Name=VID Keyword=PortNo */
+                <A [8] 'WF116885   ' > /* Name=VID Keyword=CarrierID */
+                >
+            >
+            >
+        >
+        .`
+    });
     let parseAndMapSecsMessage = (doc: vscode.TextDocument) => {
         return extension.parseSecsMessage(doc)
             .map(element => {
@@ -651,21 +682,21 @@ suite("secsLogic Tests", function () {
     test("carrierInfo", async function() {
         let case1 = parseAndMapSecsMessage(await document1);
 
-        var info1 = getCarrierInfo(case1);
+        var info1 = getCarrierInfo(case1, parserKeyword);
         assert.equal(info1.carrierId, 'WF116882');
         assert.deepEqual(info1.lotId, ['691862300']);
         assert.deepEqual(info1.ppids, ['TR_P_UAA064_H46CTW_AB']);
         assert.equal(info1.waferCount, 25);
 
         let case2 = parseAndMapSecsMessage(await document2);
-        var info2 = getCarrierInfo(case2);
+        var info2 = getCarrierInfo(case2, parserKeyword);
         assert.equal(info2.carrierId, '');
         assert.deepEqual(info2.lotId, []);
         assert.deepEqual(info2.ppids, ['TR_P_UAA064_H46CTW_AB/UAA064_H46CTW_AB/123546']);
         assert.equal(info2.waferCount, 0);
 
         let case3 = parseAndMapSecsMessage(await document3);
-        var info3 = getCarrierInfo(case3);
+        var info3 = getCarrierInfo(case3, parserKeyword);
         assert.equal(info3.carrierId, 'WF112635');
         assert.deepEqual(info3.lotId, ['691862300', '691862304', '691862303']);
         assert.deepEqual(info3.ppids, []);
@@ -673,11 +704,15 @@ suite("secsLogic Tests", function () {
         assert.equal(info3.cancelCarrier, false);
 
         let case4 = parseAndMapSecsMessage(await document4);
-        var info4 = getCarrierInfo(case4);
+        var info4 = getCarrierInfo(case4, parserKeyword);
         assert.equal(info4.carrierId, 'WF115780');
         assert.deepEqual(info4.lotId, ['691041200']);
         assert.deepEqual(info4.ppids, []);
         assert.equal(info4.waferCount, 25);
         assert.equal(info4.cancelCarrier, true);
+
+        let case5 = parseAndMapSecsMessage(await document5);
+        var info5 = getCarrierInfo(case5, parserKeyword);
+        assert.equal(info5.carrierId, 'WF116885');
     });
 });

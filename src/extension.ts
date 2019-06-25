@@ -51,7 +51,6 @@ export function activate(context: vscode.ExtensionContext) {
                 secsMessageProvider.refresh();
             }
         });
-
 }
 
 // this method is called when your extension is deactivated

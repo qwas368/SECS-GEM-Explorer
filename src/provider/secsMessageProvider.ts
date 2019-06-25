@@ -6,11 +6,12 @@ import { DocumentPosition } from '../interface';
 import { SecsMessage } from '../model/secsMessage';
 import { parseSecsMessage } from '../extension';
 import { cfg } from '../config';
-import { Configuration } from '../model/configuration';
+import { Configuration, ParserKeyword } from '../model/configuration';
 import * as R from 'ramda';
 import { Guid } from 'guid-typescript';
 import { CarrierInfo } from '../model/carrierInfo';
 import { getCarrierInfo } from '../logic/secsLogic';
+import { config } from 'rxjs';
 
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
@@ -169,7 +170,9 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 		public readonly command?: vscode.Command
 	) {
 		super('unknown', collapsibleState);
-		this.carrierInfo = getCarrierInfo(messageItems.map(x => x.secsMessage));
+		let messageSetting = cfg().messageSetting;
+		let parserKeyword: ParserKeyword = messageSetting ? messageSetting.parserKeyword : { carrierIdRead: [] };
+		this.carrierInfo = getCarrierInfo(messageItems.map(x => x.secsMessage), messageSetting ? messageSetting.parserKeyword : { carrierIdRead: [] });
 		this.ulabel = this.carrierInfo.carrierId || "unknown" ;
 		super.label = this.carrierInfo.carrierId || "unknown";
 		this.id = Guid.create().toString();
@@ -264,10 +267,11 @@ export class FileItem extends vscode.TreeItem {
 							arguments: [position1, position2, this.textDocument]
 						}
 					);
-
-					if (messageItem.secsMessage.ceidKeyword === "CarrierIDRead" && group.length === 0) {
+					
+					var carrierIdReadKeyword = cfg().messageSetting.parserKeyword.carrierIdRead;
+					if (carrierIdReadKeyword.includes(messageItem.secsMessage.ceidKeyword) && group.length === 0) {
 						group.push(messageItem);
-					} else if (messageItem.secsMessage.ceidKeyword === "CarrierIDRead") {
+					} else if (carrierIdReadKeyword.includes(messageItem.secsMessage.ceidKeyword)) {
 						groups.push(group);
 						group = [];
 						group.push(messageItem);

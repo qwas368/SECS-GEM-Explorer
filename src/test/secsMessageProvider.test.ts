@@ -1,5 +1,5 @@
 // The module 'assert' provides assertion methods from node
-import { Configuration } from '../model/configuration';
+import { Configuration, ParserKeyword } from '../model/configuration';
 import * as assert from 'assert';
 import * as SecsMsgP from '../provider/secsMessageProvider';
 import * as extension from '../extension';
@@ -123,7 +123,10 @@ suite("SecsMessageProvider Tests", async function () {
 
         const cfg : Configuration = {
             hideUnusedS6F11: true,
-            hideUnusedS6F1: true
+            hideUnusedS6F1: true,
+            messageSetting: {
+                parserKeyword: new ParserKeyword()
+            }
         };
         assert.equal(case1.filter(m => SecsMsgP.messageItemFilter(m, cfg)).length, 2);
 

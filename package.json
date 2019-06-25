@@ -95,6 +95,15 @@
           "type": "boolean",
           "description": "是否隱藏S6F1訊息？",
           "default": true
+        },
+        "secs.messageSetting": {
+            "type": "object",
+            "default": {
+              "parserKeyword": {
+                "carrierIdRead": ["CarrierIDRead", "CarrierIDRead_Done"]
+              }
+            },
+            "description": "Secs message設定"
         }
       }
     }

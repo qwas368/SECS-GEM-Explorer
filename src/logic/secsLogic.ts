@@ -2,6 +2,7 @@ import { CarrierInfo } from '../model/carrierInfo';
 import { SecsMessage } from '../model/secsMessage';
 import * as R from 'ramda';
 import { stringify } from 'querystring';
+import { ParserKeyword } from '../model/configuration';
 
 type s3f17Content = {
     carrierId: string,
@@ -11,8 +12,9 @@ type s3f17Content = {
     }[]
 };
 
+
 // [pure]
-export function getCarrierInfo(secsMessages: SecsMessage[]): CarrierInfo {
+export function getCarrierInfo(secsMessages: SecsMessage[], parserKeyword: ParserKeyword): CarrierInfo {
     let foup: s3f17Content = {carrierId: "", contentMap: []};
     let carrierId: string = "";
     let ppids: string[] = [];
@@ -28,7 +30,7 @@ export function getCarrierInfo(secsMessages: SecsMessage[]): CarrierInfo {
             } else {
                 cancelCarrier = true;
             }
-        } else if (secsMessage.command === 'S6F11' && secsMessage.ceidKeyword === "CarrierIDRead") {
+        } else if (secsMessage.command === 'S6F11' && parserKeyword.carrierIdRead.includes(secsMessage.ceidKeyword)) {
             carrierId = getCarrierId(secsMessage);
         } else if (secsMessage.command === 'S16F11' || secsMessage.command === 'S16F15') {
             ppids = R.uniq(getPpid(secsMessage));
@@ -71,14 +73,13 @@ function getS3F17Content(secsMessage: SecsMessage): s3f17Content {
 }
 
 function getCarrierId(secsMessage: SecsMessage): string {
-    if (secsMessage.ceidKeyword === "CarrierIDRead") {
-        let reg = /'(?<carrierId>\w{8})'/gi;
-        let result = reg.exec(secsMessage.body.replace(/\s/g, ''));
-        if (result && result.groups) {
-            return result.groups.carrierId;
-        }
+    let reg = /'(?<carrierId>\w{8})'/gi;
+    let result = reg.exec(secsMessage.body.replace(/\s/g, ''));
+    if (result && result.groups) {
+        return result.groups.carrierId;
+    } else {
+        return 'unknown';
     }
-    return 'unknown';
 }
 
 function getPpid(secsMessage: SecsMessage): string[] {
