@@ -8,6 +8,7 @@ import * as Rx from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
 
 var secsMessageProvider: SecsMessageProvider;
+var secsMessageTreeView: vscode.TreeView<vscode.TreeItem>;
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -16,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
     secsMessageProvider = new SecsMessageProvider();
 
     // register event
-    vscode.window.registerTreeDataProvider('secs-messages', secsMessageProvider);
+    secsMessageTreeView = vscode.window.createTreeView('secs-messages', { treeDataProvider: secsMessageProvider });
     vscode.commands.registerCommand("extension.secs.explore.file", () => explore());
     vscode.commands.registerCommand("extension.secs.explore.folder", () => exploreFolder());
     vscode.commands.registerCommand('extension.revealLine', (p1: vscode.Position, p2: vscode.Position, t1: vscode.TextDocument) => {
@@ -28,6 +29,18 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.showInformationMessage(x!);
         });
     });
+    vscode.commands.registerCommand('extension.secs.reveal', () => {
+        if (secsMessageProvider.currentEditTreeItem) {
+            secsMessageTreeView.reveal(secsMessageProvider.currentEditTreeItem, { select: true, expand: true })
+                .then(() => {
+                    if (secsMessageProvider.currentEditTreeItem) {
+                        secsMessageTreeView.reveal(secsMessageProvider.currentEditTreeItem, { select: true, expand: true });
+                    }
+                });
+        } else {
+            vscode.window.showInformationMessage("Can't find editing message in SecsTreeView.");
+        };
+    });
     vscode.commands.registerCommand('extension.secs.explore.deleteEntry', (node: vscode.TreeItem) => {
         secsMessageProvider.deleteTreeItem(node);
         vscode.window.showInformationMessage(`Successfully called delete entry on ${node.label}.`);
@@ -38,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
         secsMessageProvider.refresh();
     });
 
-    // on select change
+    // 使用者將輸入位置移動後需要改變Editor的label
     Rx.Observable.create((observer: Rx.Observer<vscode.TextEditorSelectionChangeEvent>) => {
         vscode.window.onDidChangeTextEditorSelection((e) => {
             observer.next(e);

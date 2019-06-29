@@ -12,14 +12,26 @@ import { Guid } from 'guid-typescript';
 import { CarrierInfo } from '../model/carrierInfo';
 import { getCarrierInfo } from '../logic/secsLogic';
 import { config } from 'rxjs';
+import { Parent } from '../interface/parent';
 
 export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<MessageItem | undefined> = new vscode.EventEmitter<MessageItem | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<MessageItem | undefined> = this._onDidChangeTreeData.event;
+
 	public treeItem: vscode.TreeItem[];
 
 	constructor() {
 		this.treeItem = [];
+		this.currentEditTreeItem = undefined;
+	}
+
+	private _currentEditTreeItem: MessageOrGroup | undefined;
+	get currentEditTreeItem(): MessageOrGroup | undefined {
+		return this._currentEditTreeItem;
+	}
+
+	set currentEditTreeItem(value: MessageOrGroup | undefined) {
+		this._currentEditTreeItem = value;
 	}
 
 	refresh(): void {
@@ -38,6 +50,12 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		return element instanceof FileItem ? this.processItems(element.subTreeItems)
 			: element instanceof GroupMessageItem ? this.processItems(element.subTreeItems)
 			: this.treeItem;
+	}
+
+	getParent(element: vscode.TreeItem): vscode.ProviderResult<vscode.TreeItem> {
+		let isParent = ((element: any): element is Parent => typeof element === "object");
+
+		return isParent(element) ? element.parent : undefined;
 	}
 
 	public addTreeItem(treeItem: vscode.TreeItem) {
@@ -64,7 +82,7 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 		return true;
 	}
 
-	private processItems(items: (MessageItem | GroupMessageItem)[]) : (MessageItem | GroupMessageItem)[] {
+	private processItems(items: MessageOrGroup[]) : MessageOrGroup[] {
 
 		let resultitems = items.filter(item => {
 			// 清空labelPrefix
@@ -78,19 +96,20 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 			}
 		});
 
-		this.editMark(resultitems);
+		let currentEditItem = this.editMark(resultitems);
+		this.currentEditTreeItem = currentEditItem ? currentEditItem : this.currentEditTreeItem;
 
 		return resultitems;
 	}
 
-	private editMark(items: (MessageItem | GroupMessageItem)[]) {
+	private editMark(items: MessageOrGroup[]): MessageOrGroup | undefined {
 		// 加上focus mark
 		let te = vscode.window.activeTextEditor;
 		if (te)
 		{
-			let isGroupMessage = (item : (MessageItem | GroupMessageItem)) =>  item instanceof GroupMessageItem;
-			let isNotLastOfItems = (item : (MessageItem | GroupMessageItem)) => item !== R.last(items);
-			let isLastOfItemsButInScope = (item : (MessageItem | GroupMessageItem)) => item === R.last(items) && underline(item.textDocument, te!.document, te!.selection.start, item.p2.line);
+			let isGroupMessage = (item : MessageOrGroup) =>  item instanceof GroupMessageItem;
+			let isNotLastOfItems = (item : MessageOrGroup) => item !== R.last(items);
+			let isLastOfItemsButInScope = (item : MessageOrGroup) => item === R.last(items) && underline(item.textDocument, te!.document, te!.selection.start, item.p2.line);
 
 			let targetItem = R.last(items.filter(item => underline(item.textDocument, te!.document, item.p1, te!.selection.start.line)));
 			if (targetItem && 
@@ -98,20 +117,27 @@ export class SecsMessageProvider implements vscode.TreeDataProvider<vscode.TreeI
 				 isNotLastOfItems(targetItem) ||
 				 isLastOfItemsButInScope(targetItem))) {
 				targetItem.labelPrefix(`✏️`);
+				return targetItem;
+			} else {
+				return undefined;
 			}
 		}
 	}
 }
 
-export class MessageItem extends vscode.TreeItem implements DocumentPosition {
+export type MessageOrGroup = MessageItem | GroupMessageItem;
 
-	private readonly ulabel: string;
+export class MessageItem extends vscode.TreeItem implements DocumentPosition, Parent {
+
+	public readonly ulabel: string;
+
 	constructor(
 		public readonly secsMessage: SecsMessage,
 		public readonly p1: vscode.Position,
 		public readonly p2: vscode.Position,
 		public readonly textDocument : vscode.TextDocument,
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+		public readonly parent: vscode.TreeItem | undefined,
 		public readonly command?: vscode.Command
 	) {
 		super('', collapsibleState);
@@ -160,23 +186,24 @@ export class MessageItem extends vscode.TreeItem implements DocumentPosition {
 	}
 }
 
-export class GroupMessageItem extends vscode.TreeItem implements DocumentPosition  {
+export class GroupMessageItem extends vscode.TreeItem implements DocumentPosition, Parent  {
 
 	private readonly ulabel: string;
 	private readonly carrierInfo: CarrierInfo;
 	constructor(
 		public readonly messageItems: MessageItem[],
 		public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-		public readonly command?: vscode.Command
+		public readonly parent: vscode.TreeItem | undefined,
+		public readonly command?: vscode.Command,
 	) {
 		super('unknown', collapsibleState);
 		let messageSetting = cfg().messageSetting;
-		let parserKeyword: ParserKeyword = messageSetting ? messageSetting.parserKeyword : { carrierIdRead: [] };
 		this.carrierInfo = getCarrierInfo(messageItems.map(x => x.secsMessage), messageSetting ? messageSetting.parserKeyword : { carrierIdRead: [] });
 		this.ulabel = this.carrierInfo.carrierId || "unknown" ;
 		super.label = this.carrierInfo.carrierId || "unknown";
 		this.id = Guid.create().toString();
 		this.iconPath = this.groupMessageIcon();
+		this.messageItems = this.messageItems.map(e => new MessageItem(e.secsMessage, e.p1, e.p2, e.textDocument, e.collapsibleState, this, e.command));
 	}
 
 	get subTreeItems(): MessageItem[] {
@@ -230,9 +257,11 @@ export class GroupMessageItem extends vscode.TreeItem implements DocumentPositio
 	}
 }
 
-export class FileItem extends vscode.TreeItem {
+export class FileItem extends vscode.TreeItem implements Parent {
 
 	contextValue = 'FileItem';
+
+	public readonly parent: vscode.TreeItem | undefined = undefined;
 
 	constructor(
 		public readonly textDocument: TextDocument,
@@ -247,7 +276,7 @@ export class FileItem extends vscode.TreeItem {
 	get tooltip(): string {
 		return `${this.textDocument.fileName}`;
 	}
-
+		
 	private _subTreeItems?: GroupMessageItem[] = undefined;
 	get subTreeItems(): GroupMessageItem[] {
 		if (!this._subTreeItems) {
@@ -260,7 +289,8 @@ export class FileItem extends vscode.TreeItem {
 						position1, 
 						position2,
 						this.textDocument,
-						vscode.TreeItemCollapsibleState.None, 
+						vscode.TreeItemCollapsibleState.None,
+						undefined,
 						{
 							command: 'extension.revealLine',
 							title: 'Go To SECS Message.',
@@ -282,7 +312,7 @@ export class FileItem extends vscode.TreeItem {
 				}, [[], []]);
 
 
-			this._subTreeItems = [...groups, group].map(group => new GroupMessageItem(group, vscode.TreeItemCollapsibleState.Collapsed));
+			this._subTreeItems = [...groups, group].map(group => new GroupMessageItem(group, vscode.TreeItemCollapsibleState.Collapsed, this));
 		}
 		return this._subTreeItems;
 	}
@@ -292,9 +322,11 @@ export class FileItem extends vscode.TreeItem {
 	}
 }
 
-// function
-
-// [pure]
+/**
+ * [pure]
+ * @param messageItem 
+ * @param cfg 
+ */
 export function messageItemFilter(messageItem: MessageItem, cfg : Configuration): boolean {
 	if (cfg.hideUnusedS6F11 && messageItem.secsMessage.command === "S6F11" && messageItem.secsMessage.ceidKeyword === "CollectionEventID") {
 		return false;
@@ -309,8 +341,12 @@ export function messageItemFilter(messageItem: MessageItem, cfg : Configuration)
 	}
 }
 
-// [pure]
-// message Item是否超過當前行數
+/**
+ * [pure] message Item是否超過當前行數
+ * @param messageItem 
+ * @param textDocument 
+ * @param ln 
+ */
 export function overline (
 	messageItem: MessageItem | GroupMessageItem, 
 	textDocument: vscode.TextDocument,
@@ -323,7 +359,14 @@ export function overline (
 	}
 }
 
-// [pure]
+
+/**
+ * [pure]
+ * @param document 
+ * @param currentDocument 
+ * @param position 
+ * @param ln 
+ */
 export function underline (
 	document: vscode.TextDocument, 
 	currentDocument: vscode.TextDocument,
