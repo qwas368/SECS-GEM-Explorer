@@ -3,8 +3,8 @@
 import * as vscode from 'vscode';
 import { SecsMessageProvider, MessageItem, FileItem } from './provider/secsMessageProvider';
 import { SecsMessage } from './model/secsMessage';
-import { TextDecoder } from 'util';
 import * as Rx from 'rxjs';
+import * as stringLogic from './logic/StringLogic';
 import { debounceTime, map } from 'rxjs/operators';
 
 var secsMessageProvider: SecsMessageProvider;
@@ -18,8 +18,18 @@ export function activate(context: vscode.ExtensionContext) {
 
     // register command
     secsMessageTreeView = vscode.window.createTreeView('secs-messages', { treeDataProvider: secsMessageProvider });
-    vscode.commands.registerCommand("extension.secs.explore.file", () => explore());
-    vscode.commands.registerCommand("extension.secs.explore.folder", () => exploreFolder());
+    vscode.commands.registerCommand("extension.secs.explore.file", () => {
+        explore();
+        if (vscode.window.activeTextEditor) {
+            decorateErrorLine(vscode.window.activeTextEditor);
+        }
+    });
+    vscode.commands.registerCommand("extension.secs.explore.folder",  () => {
+         exploreFolder();
+         if (vscode.window.activeTextEditor) {
+             decorateErrorLine(vscode.window.activeTextEditor);
+         }
+    });
     vscode.commands.registerCommand('extension.revealLine', (p1: vscode.Position, p2: vscode.Position, t1: vscode.TextDocument) => {
         revealTextDocument(t1);
         revealPosition(p1, p2);
@@ -69,28 +79,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     vscode.window.onDidChangeActiveTextEditor(e => {
         if (e) {
-            return;
-        } else {
-            for (let item of secsMessageProvider.treeItem) {
-                if (item instanceof FileItem && item.textDocument === e) {
-                    let re = /(fatal|exception|error)/gs;
-                    let fullText = e.getText();
-    let result;
-    let secsMessages: [SecsMessage, vscode.Position, vscode.Position][] = [];
-    while (null !== (result = re.exec(fullText))) {
-        if (result.groups) {
-            let { header, body, command, comment } = result.groups;
-            var position1 = textDocument.positionAt(re.lastIndex - result[0].length);
-            var position2 = textDocument.positionAt(re.lastIndex);
-            secsMessages.push([new SecsMessage(header, body, command, comment), position1, position2]);
-        }
-    }
-    return secsMessages;
-                }
-            }
+            decorateErrorLine(e);
         }
     });
-    
 }
 
 // this method is called when your extension is deactivated
@@ -174,10 +165,15 @@ export function parseSecsMessage(textDocument: vscode.TextDocument): [SecsMessag
     return secsMessages;
 }
 
-function setRedMarkDecoration(line: number) {
-    let a = vscode.window.createTextEditorDecorationType({
+function setRedMarkDecoration(textEditor: vscode.TextEditor, range: vscode.Range[]) {
+    let type = vscode.window.createTextEditorDecorationType({
         overviewRulerLane: vscode.OverviewRulerLane.Left,
         overviewRulerColor: "rgba(255, 0, 0, 0.7)"
     });
-    vscode.window.activeTextEditor!.setDecorations(a, [new vscode.Range(1, 0, 1, 0)]);
+    textEditor.setDecorations(type, range);
+}
+
+function decorateErrorLine(textEditor: vscode.TextEditor) {
+    let matchs = stringLogic.getMatchStringArray(textEditor.document, /(fatal|exception)/gi);
+    setRedMarkDecoration(textEditor, matchs);
 }
