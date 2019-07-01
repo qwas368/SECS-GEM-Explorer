@@ -34,9 +34,9 @@ suite("GroupMessageItem Tests", function () {
             let messageItems = extension.parseSecsMessage(doc)
                 .map(element => {
                     let [secsMessage, position1, position2] = element;
-                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None);
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None, undefined);
                 });
-            return new SecsMsgP.GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed);
+            return new SecsMsgP.GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed, undefined);
         });
 
         assert.equal(case1.label, 'unknown');
@@ -72,9 +72,9 @@ suite("GroupMessageItem Tests", function () {
             let messageItems = extension.parseSecsMessage(doc)
                 .map(element => {
                     let [secsMessage, position1, position2] = element;
-                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None);
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None, undefined);
                 });
-            return new SecsMsgP.GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed);
+            return new SecsMsgP.GroupMessageItem(messageItems, vscode.TreeItemCollapsibleState.Collapsed, undefined);
         });
 
         assert.equal(case1.getCarrierId(), 'WF115524');
@@ -107,7 +107,7 @@ suite("SecsMessageProvider Tests", async function () {
         return extension.parseSecsMessage(doc)
             .map(element => {
                 let [secsMessage, position1, position2] = element;
-                return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None);
+                return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None, undefined);
             });
     };
 
@@ -117,7 +117,7 @@ suite("SecsMessageProvider Tests", async function () {
                 return extension.parseSecsMessage(doc)
                     .map(element => {
                         let [secsMessage, position1, position2] = element;
-                        return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None);
+                        return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None, undefined);
                     });
             });
 

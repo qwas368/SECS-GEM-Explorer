@@ -1,6 +1,5 @@
 ## Requirements
 
-* 顯示contentmap的內容 (wafer數量、Job Id、PPID)
 * enable all event (加上快速setting)
 * group 功能
 * package-lock為什麼一直變動
