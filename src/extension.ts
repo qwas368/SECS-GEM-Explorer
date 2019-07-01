@@ -16,7 +16,7 @@ export function activate(context: vscode.ExtensionContext) {
     // init
     secsMessageProvider = new SecsMessageProvider();
 
-    // register event
+    // register command
     secsMessageTreeView = vscode.window.createTreeView('secs-messages', { treeDataProvider: secsMessageProvider });
     vscode.commands.registerCommand("extension.secs.explore.file", () => explore());
     vscode.commands.registerCommand("extension.secs.explore.folder", () => exploreFolder());
@@ -39,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
         } else {
             vscode.window.showInformationMessage("Can't find editing message in SecsTreeView.");
-        };
+        }
     });
     vscode.commands.registerCommand('extension.secs.explore.deleteEntry', (node: vscode.TreeItem) => {
         secsMessageProvider.deleteTreeItem(node);
@@ -50,6 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
         secsMessageProvider.flush();
         secsMessageProvider.refresh();
     });
+
+    // register event
 
     // 使用者將輸入位置移動後需要改變Editor的label
     Rx.Observable.create((observer: Rx.Observer<vscode.TextEditorSelectionChangeEvent>) => {
@@ -64,6 +66,31 @@ export function activate(context: vscode.ExtensionContext) {
                 secsMessageProvider.refresh();
             }
         });
+
+    vscode.window.onDidChangeActiveTextEditor(e => {
+        if (e) {
+            return;
+        } else {
+            for (let item of secsMessageProvider.treeItem) {
+                if (item instanceof FileItem && item.textDocument === e) {
+                    let re = /(fatal|exception|error)/gs;
+                    let fullText = e.getText();
+    let result;
+    let secsMessages: [SecsMessage, vscode.Position, vscode.Position][] = [];
+    while (null !== (result = re.exec(fullText))) {
+        if (result.groups) {
+            let { header, body, command, comment } = result.groups;
+            var position1 = textDocument.positionAt(re.lastIndex - result[0].length);
+            var position2 = textDocument.positionAt(re.lastIndex);
+            secsMessages.push([new SecsMessage(header, body, command, comment), position1, position2]);
+        }
+    }
+    return secsMessages;
+                }
+            }
+        }
+    });
+    
 }
 
 // this method is called when your extension is deactivated
@@ -145,4 +172,12 @@ export function parseSecsMessage(textDocument: vscode.TextDocument): [SecsMessag
         }
     }
     return secsMessages;
+}
+
+function setRedMarkDecoration(line: number) {
+    let a = vscode.window.createTextEditorDecorationType({
+        overviewRulerLane: vscode.OverviewRulerLane.Left,
+        overviewRulerColor: "rgba(255, 0, 0, 0.7)"
+    });
+    vscode.window.activeTextEditor!.setDecorations(a, [new vscode.Range(1, 0, 1, 0)]);
 }

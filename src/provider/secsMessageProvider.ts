@@ -332,7 +332,7 @@ export function messageItemFilter(messageItem: MessageItem, cfg : Configuration)
 		return false;
 	} else if (cfg.hideUnusedS6F11 && messageItem.secsMessage.command === "S6F12") {
 		return false;
-	} else if (cfg.hideUnusedS6F1 && messageItem.secsMessage.command === "S6F1") {
+	} else if (cfg.hideUnusedS6F1 && ["S6F1", "S6F2"].includes(messageItem.secsMessage.command)) {
 		return false;
 	} else if (messageItem.secsMessage.command === "S1F1" || messageItem.secsMessage.command === "S1F2") {
 		return false;
