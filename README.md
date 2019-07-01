@@ -4,6 +4,7 @@
 * enable all event (加上快速setting)
 * group 功能
 * package-lock為什麼一直變動
+* Fatel上面加上map紅標
 
 ## publish
 
