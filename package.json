@@ -2,7 +2,7 @@
   "name": "secs-message-explorer",
   "displayName": "SECS Message Explorer",
   "description": "Explore secs command",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "publisher": "ychu0",
   "engines": {
     "vscode": "^1.34.0"
@@ -85,6 +85,13 @@
           "when": "view == secs-messages && viewItem == FileItem",
           "group": "inline"
 				}
+      ],
+      "editor/context": [
+        {
+            "command": "extension.secs.reveal",
+            "group": "secs",
+            "when": "editorTextFocus && config.bookmarks.showCommandsInContextMenu"
+        }
       ]
     },
     "configuration": {
