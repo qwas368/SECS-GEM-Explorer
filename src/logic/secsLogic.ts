@@ -57,8 +57,8 @@ function getS3F17Content(secsMessage: SecsMessage): s3f17Content {
     foup.carrierId = carrierId;
 
     // get contentMap
-    let checkReg = /<L\[2\]<A\[10\]'ContentMap'><L\[25\](?<wafers>(<L\[2\]<A\[\d*\]'(.*?)'><A\[\d*\]'(.*?)'>>){25})\>\>/gi;
-    let checkedResult = checkReg.exec(secsMessage.body.replace(/[\r\n ]|(\/\*.*?\*\/)/g, ''));
+    let checkReg = /<L\[2\]<A\[10\]'ContentMap'><L\[25\](?<wafers>(<L\[2\]<A\[\d*\]('(.*?)')?><A\[\d*\]('(.*?)')?>>){25})\>\>/gi;
+    let checkedResult = checkReg.exec(removeCommentAndWhitespace(secsMessage.body));
     if (checkedResult && checkedResult.groups) {
         let noWhiteSpaceBody = checkedResult.groups.wafers;
         let re = /(<L\[2\]<A\[\d*\]'(?<lotId>.*?)'><A\[\d*\]'(?<waferId>.*?)'>>)/gi;
@@ -102,4 +102,8 @@ function getPpid(secsMessage: SecsMessage): string[] {
     } else {
         return [];
     }
+}
+
+function removeCommentAndWhitespace(message: string) {
+    return message.replace(/[\r\n ]|(\/\*.*?\*\/)/g, '');
 }

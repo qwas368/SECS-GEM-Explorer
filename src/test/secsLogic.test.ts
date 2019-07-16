@@ -671,6 +671,162 @@ suite("secsLogic Tests", function () {
         >
         .`
     });
+    let document6 = vscode.workspace.openTextDocument({
+        language: 'log',
+        content: `2019-07-10 12:15:06,988 INFO  [1] - SECS. ProceedWithCarrier: 'S3F17' W /*  Header=[00 00 83 11 00 00 00 C8 5A 4D 00] Rcvd=1 Time=12:15:07 TID=23117 */
+        <L [5]
+            <U4 [1] 1 >
+            <A [18] 'ProceedWithCarrier' > /* MappedValue=ProceedWithCarrier */
+            <A [8] 'WF103449' > /* MappedValue=WF103449 */
+            <U1 [1] 1 >
+            <L [4]
+                <L [2]
+                    <A [5] 'Usage' > /* MappedValue=Usage */
+                    <A [7] 'PRODUCT' > /* MappedValue=PRODUCT */
+                 >
+                <L [2]
+                    <A [8] 'Capacity' > /* MappedValue=Capacity */
+                    <U1 [1] 25 >
+                 >
+                <L [2]
+                    <A [10] 'ContentMap' > /* MappedValue=ContentMap */
+                    <L [25]
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'HXCY1613FK' > /* MappedValue=HXCY1613FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'H8AU0776FK' > /* MappedValue=H8AU0776FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'GZ672322FK' > /* MappedValue=GZ672322FK */
+                         >
+                        <L [2]
+                            <A [10] 'N911157APS' > /* MappedValue=N911157APS */
+                            <A [10] 'I6151819FK' > /* MappedValue=I6151819FK */
+                         >
+                        <L [2]
+                            <A [10] 'N911157APS' > /* MappedValue=N911157APS */
+                            <A [10] 'I32X1579FK' > /* MappedValue=I32X1579FK */
+                         >
+                        <L [2]
+                            <A [10] 'N911157APS' > /* MappedValue=N911157APS */
+                            <A [10] 'HZ1X1851FK' > /* MappedValue=HZ1X1851FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'M6KWL052WA' > /* MappedValue=M6KWL052WA */
+                         >
+                        <L [2]
+                            <A [10] 'N911157APS' > /* MappedValue=N911157APS */
+                            <A [10] '7B270B05SL' > /* MappedValue=7B270B05SL */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'F8951805FK' > /* MappedValue=F8951805FK */
+                         >
+                        <L [2]
+                            <A [10] 'N911157APU' > /* MappedValue=N911157APU */
+                            <A [10] 'H6DC2606FK' > /* MappedValue=H6DC2606FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'FX5S1854FK' > /* MappedValue=FX5S1854FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'I8021842FK' > /* MappedValue=I8021842FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'H70Z2604FK' > /* MappedValue=H70Z2604FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'IX1E1831FK' > /* MappedValue=IX1E1831FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'HXEL1140FK' > /* MappedValue=HXEL1140FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'GZ431793FK' > /* MappedValue=GZ431793FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'W74MH008ES' > /* MappedValue=W74MH008ES */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'H1D12496FK' > /* MappedValue=H1D12496FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'IX1E1830FK' > /* MappedValue=IX1E1830FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] 'IY1Q1788FK' > /* MappedValue=IY1Q1788FK */
+                         >
+                        <L [2]
+                            <A [9] 'N911157HR' > /* MappedValue=N911157HR */
+                            <A [10] '4H0BJ530KO' > /* MappedValue=4H0BJ530KO */
+                         >
+                        <L [2]
+                            <A [0] >
+                            <A [0] >
+                         >
+                        <L [2]
+                            <A [0] >
+                            <A [0] >
+                         >
+                        <L [2]
+                            <A [0] >
+                            <A [0] >
+                         >
+                        <L [2]
+                            <A [0] >
+                            <A [0] >
+                         >
+                     >
+                 >
+                <L [2]
+                    <A [7] 'SlotMap' > /* MappedValue=SlotMap */
+                    <L [25]
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 3 >
+                        <U1 [1] 1 >
+                        <U1 [1] 1 >
+                        <U1 [1] 1 >
+                        <U1 [1] 1 >
+                     >
+                 >
+             >
+         >
+    .`
+    });
     let parseAndMapSecsMessage = (doc: vscode.TextDocument) => {
         return extension.parseSecsMessage(doc)
             .map(element => {
@@ -714,5 +870,10 @@ suite("secsLogic Tests", function () {
         let case5 = parseAndMapSecsMessage(await document5);
         var info5 = getCarrierInfo(case5, parserKeyword);
         assert.equal(info5.carrierId, 'WF116885');
+
+        let case6 = parseAndMapSecsMessage(await document6);
+        var info6 = getCarrierInfo(case6, parserKeyword);
+        assert.equal(info6.carrierId, 'WF103449');
+        assert.equal(info6.waferCount, 21);
     });
 });

@@ -176,3 +176,74 @@ suite("SecsMessageProvider Tests", async function () {
         assert.equal(case1[0].label, origianlLabel);
     });
 });
+
+suite("MessageItem Tests", function () {
+    test('test_ceidKeyword_from_mappedValue', async () => {
+        let case1 = await vscode.workspace.openTextDocument({
+            language: 'log',
+            content: `ERS: 'S6F11' W /* Name=EventReportSend Dir=1 Header=[00 00 86 0B 00 00 00 01 37 01 00] Rcvd=2 Time=12:01:51 TID=22930 */
+            <L [3]
+                <U4 [1] 35973 > /* DATAID */
+                <U4 [1] 973 > /* Name=CEID Keyword=CollectionEventID MappedValue=CarrierIDRead_Done (CSM03_NoState_2_WaitingForHost) */
+                <L [...] /* Name=reportsList Keyword=ReportList */
+                    <L [2] /* Name=reportDefinition */
+                        <U4 [1] 2 > /* Name=RPTID Keyword=ReportID */
+                        <L [...] /* Name=reportVidListTemplate Keyword=VidList */
+                            <U4 [1] 2 > /* Name=V Keyword=VariableData */
+                            <A [8] 'WF103188' > /* Name=V Keyword=VariableData MappedValue=WF103188 */
+                         >
+                     >
+                 >
+             >
+            .`
+        })
+        .then(doc => {
+            let messageItems = extension.parseSecsMessage(doc)
+                .map(element => {
+                    let [secsMessage, position1, position2] = element;
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None, undefined);
+                });
+            return messageItems[0];
+        });
+
+        assert.equal(case1.secsMessage.ceidKeyword, 'CarrierIDRead_Done');
+    });
+
+    test('test_ceidKeyword_from_keyword', async () => {
+        let case1 = await vscode.workspace.openTextDocument({
+            language: 'log',
+            content: `S6F11: 'S6F11' W /* Name= SMSD=SMSD Header=[D0 CA 02 00] */
+            <L [3]
+              <U4 [1] 16444 > /* DATAID */
+              <U4 [1] 1012 > /* Name=CEID Keyword=CarrierIDRead */
+              <L [2]
+                <L [2]
+                  <U4 [1] 204 > /* Name=RPTID Keyword=ReportID */
+                  <L [3]
+                    <U1 [1] 1 > /* Name=VID Keyword=PortNo */
+                    <I2 [1] 1 > /* Name=VID Keyword=PortNo1 */
+                    <A [16] 'WF118284        ' > /* Name=VID Keyword=CarrierID */
+                  >
+                >
+                <L [2]
+                  <U4 [1] 15 > /* Name=RPTID Keyword=ReportID */
+                  <L [1]
+                    <A [20] 'BUAA064I27          ' > /* Name=VID Keyword=ProberCard */
+                  >
+                >
+              >
+            >
+          .`
+        })
+        .then(doc => {
+            let messageItems = extension.parseSecsMessage(doc)
+                .map(element => {
+                    let [secsMessage, position1, position2] = element;
+                    return new SecsMsgP.MessageItem(secsMessage, position1, position2, doc, vscode.TreeItemCollapsibleState.None, undefined);
+                });
+            return messageItems[0];
+        });
+
+        assert.equal(case1.secsMessage.ceidKeyword, 'CarrierIDRead');
+    });
+});

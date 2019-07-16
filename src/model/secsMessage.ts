@@ -26,11 +26,14 @@ export class SecsMessage {
     get ceidKeyword() : string {
         if (!this._ceidKeyword)
         {
-            let reg = /\/\*\s*Name=(?<name>CEID)\s*Keyword=(?<keyword>\w*)\s*\*\//gi;
+            let reg = /\/\*\s*Name=(?<name>CEID)\s*Keyword=(?<keyword>\w*)\s*(MappedValue=(?<mappedValue>\w*))?.*?\*\//gi;
             let result = reg.exec(this.body);
             if (result) {
                 if (result.groups) {
-                    this._ceidKeyword = result.groups.keyword;
+                    // MappedValue沒有就選Keyword
+                    this._ceidKeyword = result.groups.mappedValue 
+                        ? result.groups.mappedValue
+                        : result.groups.keyword;
                 }
             } else {
                 this._ceidKeyword = '';
